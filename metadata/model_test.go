@@ -8,12 +8,20 @@ import (
 // "github.com/dronm/sqlutils/fields"
 func TestValidateModel(t *testing.T) {
 
+	Enums = map[string][]string{"sex": {"male", "female"}}
+
 	tests := []struct {
 		name      string
 		expErr    bool
 		expErrStr string
 		model     interface{}
 	}{
+		{"enum", true,
+			fmt.Sprintf(ER_VAL_VAL_LIST, "b"),
+			&struct {
+				B string `json:"b" required:"true" enum:"sex"`
+			}{B: "nuter"},
+		},
 		{"value list", true,
 			fmt.Sprintf(ER_VAL_VAL_LIST, "b"),
 			&struct {
