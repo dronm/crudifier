@@ -31,7 +31,7 @@ func (f FieldDateMetadata) Validate(field reflect.Value) (bool, error) {
 
 	timeField, ok := field.Interface().(time.Time)
 	if !ok {
-		return true, &IntervalServerError{ErrText: fmt.Sprintf(ER_VAL_CAST, f.ModelID(), "time.Time")}
+		return true, fmt.Errorf(ER_VAL_CAST, f.ModelID(), "time.Time")
 	}
 	return timeField == time.Time{}, nil
 }

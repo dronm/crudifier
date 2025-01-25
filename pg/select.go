@@ -8,7 +8,7 @@ import (
 )
 
 type PgSelect struct {
-	model          types.DbModel
+	model          types.DbAggModel
 	filter         *PgFilters
 	sorter         *PgSorters
 	limit          *PgLimit
@@ -18,7 +18,7 @@ type PgSelect struct {
 	aggFieldValues []interface{}
 }
 
-func NewPgSelect(model types.DbModel, filter *PgFilters, sorter *PgSorters, limit *PgLimit) *PgSelect {
+func NewPgSelect(model types.DbAggModel, filter *PgFilters, sorter *PgSorters, limit *PgLimit) *PgSelect {
 	return &PgSelect{model: model,
 		filter: filter,
 		sorter: sorter,
@@ -26,7 +26,7 @@ func NewPgSelect(model types.DbModel, filter *PgFilters, sorter *PgSorters, limi
 	}
 }
 
-func (s PgSelect) Model() types.DbModel {
+func (s PgSelect) Model() types.DbAggModel {
 	return s.model
 }
 
@@ -49,6 +49,10 @@ func (s PgSelect) Limit() types.DbLimit {
 
 func (s PgSelect) Sorter() types.DbSorters {
 	return s.sorter
+}
+
+func (s PgSelect) FieldValues() []interface{} {
+	return s.fieldValues
 }
 
 func (s *PgSelect) AddField(id string, val interface{}) {
@@ -85,6 +89,7 @@ func (s PgSelect) SQL(queryParams *[]interface{}) string {
 	)
 }
 
+// CollectionSQL returns two queries: collecion query and aggregation query.
 func (s PgSelect) CollectionSQL(queryParams *[]interface{}) (string, string) {
 	var filterSQL string
 	if s.filter != nil {
@@ -98,6 +103,16 @@ func (s PgSelect) CollectionSQL(queryParams *[]interface{}) (string, string) {
 	if s.limit != nil {
 		limitSQL = s.limit.SQL()
 	}
+
+	totQuery := ""
+	if len(s.aggFields) > 0 {
+		totQuery = fmt.Sprintf("SELECT %s FROM %s%s",
+			strings.Join(s.aggFields, ","),
+			s.model.Relation(),
+			filterSQL,
+		)
+	}
+
 	return fmt.Sprintf("SELECT %s FROM %s%s%s%s",
 			strings.Join(s.fieldIds, ","),
 			s.model.Relation(),
@@ -105,9 +120,5 @@ func (s PgSelect) CollectionSQL(queryParams *[]interface{}) (string, string) {
 			sorterSQL,
 			limitSQL,
 		),
-		fmt.Sprintf("SELECT %s FROM %s%s",
-			strings.Join(s.aggFields, ","),
-			s.model.Relation(),
-			filterSQL,
-		)
+		totQuery
 }

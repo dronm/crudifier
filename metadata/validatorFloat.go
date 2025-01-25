@@ -50,16 +50,16 @@ func (f FieldFloatMetadata) Validate(field reflect.Value) (bool, error) {
 		case reflect.Float64:
 			val, ok = field.Interface().(float64)
 			if !ok {
-				return true, &IntervalServerError{ErrText: fmt.Sprintf(ER_VAL_CAST, f.ModelID(), "float64")}
+				return true, fmt.Errorf(ER_VAL_CAST, f.ModelID(), "float64")
 			}
 		case reflect.Float32:
 			val32, ok := field.Interface().(float32)
 			if !ok {
-				return true, &IntervalServerError{ErrText: fmt.Sprintf(ER_VAL_CAST, f.ModelID(), "float32")}
+				return true, fmt.Errorf(ER_VAL_CAST, f.ModelID(), "float32")
 			}
 			val = float64(val32)
 		default:
-			return true, &IntervalServerError{ErrText: fmt.Sprintf(ER_VAL_CAST, f.ModelID(), "float64")}
+			return true, fmt.Errorf(ER_VAL_CAST, f.ModelID(), "float64")
 		}
 	}
 

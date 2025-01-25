@@ -41,6 +41,14 @@ func (s PgInsert) RetFieldValues() []interface{} {
 	return s.retFieldValues
 }
 
+func (s PgInsert) RetFields() map[string]interface{} {
+	res := make(map[string]interface{}, len(s.retFieldIds))
+	for i, f := range s.retFieldIds {
+		res[f] = s.retFieldValues[i]
+	}
+	return res
+}
+
 func (s *PgInsert) AddField(fieldId string, val interface{}) {
 	s.fields = append(s.fields, PgField{ID: fieldId, Value: val})
 }

@@ -12,6 +12,7 @@ type FieldTextMetadata struct {
 	minLength *int64
 	fixLength *int64
 	regExp    string
+	valList   []string
 }
 
 func NewFieldTextMedata(modelFieldId, id string) *FieldTextMetadata {
@@ -32,6 +33,10 @@ func (f FieldTextMetadata) FixLength() *int64 {
 
 func (f FieldTextMetadata) RegExp() string {
 	return f.regExp
+}
+
+func (f FieldTextMetadata) ValList() []string {
+	return f.valList
 }
 
 type ModelFieldText interface {
@@ -56,7 +61,7 @@ func (f FieldTextMetadata) Validate(field reflect.Value) (bool, error) {
 		valIntf := field.Interface()
 		val, ok = valIntf.(string)
 		if !ok {
-			return true, &IntervalServerError{ErrText: fmt.Sprintf(ER_VAL_CAST, f.ModelID(), "string")}
+			return true, fmt.Errorf(ER_VAL_CAST, f.ModelID(), "string")
 		}
 	}
 
@@ -80,6 +85,19 @@ func (f FieldTextMetadata) Validate(field reflect.Value) (bool, error) {
 		}
 		if !match {
 			return true, fmt.Errorf(ER_VAL_REG_EXP, f.Descr())
+		}
+	}
+
+	if len(f.valList) > 0 {
+		res := false
+		for _, v := range f.valList {
+			if v == val {
+				res = true
+				break
+			}
+		}
+		if !res {
+			return true, fmt.Errorf(ER_VAL_VAL_LIST, f.Descr())
 		}
 	}
 

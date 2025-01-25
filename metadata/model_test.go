@@ -14,6 +14,12 @@ func TestValidateModel(t *testing.T) {
 		expErrStr string
 		model     interface{}
 	}{
+		{"value list", true,
+			fmt.Sprintf(ER_VAL_VAL_LIST, "b"),
+			&struct {
+				B string `json:"b" required:"true" valList:"aaa@@bbb@@ccc"`
+			}{B: "ddd"},
+		},
 		{"max value length", true,
 			fmt.Sprintf(ER_VAL_LEN_TOO_LONG, "a"),
 			&struct {
@@ -73,7 +79,7 @@ func TestValidateModel(t *testing.T) {
 	for _, ts := range tests {
 		t.Run(t.Name(), func(t *testing.T) {
 			gotErr := ValidateModel(ts.model, fieldTagName)
-			// t.Logf("got error: %v", gotErr)
+			t.Logf("got error: %v", gotErr)
 			if ts.expErr && gotErr == nil {
 				t.Fatalf("test: %s, expected error %s, got none", ts.name, ts.expErrStr)
 			}

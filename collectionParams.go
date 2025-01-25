@@ -47,7 +47,7 @@ type CollectionSorter struct {
 
 type CollectionFilterField struct {
 	Operator FilterOperatorParam `json:"o"`
-	Value    interface{}         `json:"value"`
+	Value    interface{}         `json:"v"`
 }
 
 type CollectionFilter struct {

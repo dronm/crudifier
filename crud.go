@@ -1,7 +1,6 @@
 package crudifier
 
 import (
-	"errors"
 	"fmt"
 	"reflect"
 	"strings"
@@ -13,6 +12,14 @@ import (
 type DbField interface {
 	IsSet() bool
 	IsNull() bool
+}
+
+type ValidationError struct {
+	ErrText string
+}
+
+func (e *ValidationError) Error() string {
+	return e.ErrText
 }
 
 func ModelToDbFilters(model interface{}, filters types.DbFilters) error {
@@ -28,45 +35,17 @@ func ModelToDbFilters(model interface{}, filters types.DbFilters) error {
 
 	for i := 0; i < modelVal.NumField(); i++ {
 		fieldType := modelType.Field(i)
-		annotTag := fieldType.Tag.Get(metadata.FieldAnnotationName)
-		if annotTag == "-" || annotTag == "" {
+		fieldId := fieldType.Tag.Get(metadata.FieldAnnotationName)
+		if fieldId == "-" || fieldId == "" {
 			continue
 		}
 		field := modelVal.Field(i)
-		filters.Add(annotTag, field.Interface(),
+		filters.Add(fieldId, field.Interface(),
 			types.SQL_FILTER_OPERATOR_E, types.SQL_FILTER_JOIN_AND)
 	}
 
 	return nil
 }
-
-// func ModelFieldValues(model interface{}) (fieldIds []string,
-// 	fieldValues []interface{}, err error) {
-//
-// 	modelVal := reflect.ValueOf(model)
-// 	modelType := reflect.TypeOf(model)
-// 	if modelVal.Kind() == reflect.Ptr {
-// 		modelType = modelType.Elem()
-// 		modelVal = modelVal.Elem()
-// 	}
-// 	if modelVal.Kind() != reflect.Struct {
-// 		err = errors.New("ModelFieldValues() failed: model must be a pointer to struct or a struct")
-// 		return
-// 	}
-//
-// 	for i := 0; i < modelVal.NumField(); i++ {
-// 		fieldType := modelType.Field(i)
-// 		annotTag := fieldType.Tag.Get(FieldAnnotationName)
-// 		if annotTag == "-" || annotTag == "" {
-// 			continue
-// 		}
-// 		fieldIds = append(fieldIds, annotTag)
-// 		field := modelVal.Field(i)
-// 		fieldValues = append(fieldValues, field.Interface())
-// 	}
-//
-// 	return
-// }
 
 // PrepareUpdateModel
 func PrepareUpdateModel(keyModel interface{}, dbUpdate types.DbUpdater) error {
@@ -121,7 +100,7 @@ func PrepareUpdateModel(keyModel interface{}, dbUpdate types.DbUpdater) error {
 	}
 
 	if errorList.Len() > 0 {
-		return errors.New(errorList.String())
+		return &ValidationError{ErrText: errorList.String()}
 	}
 
 	return nil
@@ -277,7 +256,7 @@ func PrepareInsertModel(dbInsert types.DbInserter) error {
 		dbInsert.AddField(fieldId, field.Interface())
 	}
 	if errorList.Len() > 0 {
-		return errors.New(errorList.String())
+		return &ValidationError{ErrText: errorList.String()}
 	}
 
 	return nil

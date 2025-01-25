@@ -30,7 +30,7 @@ func (f FieldBoolMetadata) Validate(field reflect.Value) (bool, error) {
 
 	boolField, ok := field.Interface().(bool)
 	if !ok {
-		return true, &IntervalServerError{ErrText: fmt.Sprintf(ER_VAL_CAST, f.ModelID(), "bool")}
+		return true, fmt.Errorf(ER_VAL_CAST, f.ModelID(), "bool")
 	}
 	return boolField, nil
 }

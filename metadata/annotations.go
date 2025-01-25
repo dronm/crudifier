@@ -3,9 +3,21 @@ package metadata
 import (
 	"reflect"
 	"strconv"
+	"strings"
 )
 
+// Enums is a glabal variable holding enum values.
+// Enum is a preset list of values to check text fields.
+// Variable is not threadsafe. It can only be set at startup,
+// before using the package concurrently.
+var Enums map[string][]string // Key is a enum ID, values is an array of possible values.
+
+// FieldAnnotationName  is a glabal variable that can be set at startup.
 var FieldAnnotationName = "json"
+
+// ValListSeparator is used as a separator between list values.
+// This variable must be set at startup.
+var ValListSeparator = "@@"
 
 // All possible annotations.
 const (
@@ -20,10 +32,14 @@ const (
 	ANNOT_TAG_AGG = "agg" //aggregation function, like agg:"count(*)" for agg models
 
 	//text
-	ANNOT_TAG_MAX_LEN = "max"
-	ANNOT_TAG_MIN_LEN = "min"
-	ANNOT_TAG_FIX_LEN = "fix"
-	ANNOT_TAG_REG_EXP = "regExp"
+	ANNOT_TAG_MAX_LEN  = "max"
+	ANNOT_TAG_MIN_LEN  = "min"
+	ANNOT_TAG_FIX_LEN  = "fix"
+	ANNOT_TAG_REG_EXP  = "regExp"
+	ANNOT_TAG_VAL_LIST = "valList" //separated list of values, separator is set at startup in ValListSeparator
+
+	ANNOT_TAG_ENUM = "enum" // check against predefined list of value,
+	// list is set at startup and stored in global variable
 
 	//number
 	ANNOT_TAG_MAX_VAL = "max"
@@ -85,6 +101,17 @@ func setTextValidatorConstraints(field reflect.StructField, validator *FieldText
 
 	if tagVal := annotationTagStringVal(field, ANNOT_TAG_REG_EXP); tagVal != "" {
 		validator.regExp = tagVal
+	}
+
+	if tagVal := annotationTagStringVal(field, ANNOT_TAG_ENUM); tagVal != "" {
+		if vals, ok := Enums[tagVal]; ok {
+			//enum exists
+			validator.valList = vals
+		}
+	}
+
+	if tagVal := annotationTagStringVal(field, ANNOT_TAG_VAL_LIST); tagVal != "" {
+		validator.valList = strings.Split(tagVal, ValListSeparator)
 	}
 
 	return nil

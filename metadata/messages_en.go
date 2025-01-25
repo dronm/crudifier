@@ -16,6 +16,7 @@ const (
 	ER_VAL_REG_EXP       = "field '%s', value should comply with regular expression"
 	ER_VAL_LEN_NOT_FIX   = "field '%s', value length should be fixed"
 	ER_VAL_PRECISION     = "field '%s', float precision is exceeded maximum value"
+	ER_VAL_VAL_LIST      = "field '%s', value should be in list of values"
 
 	ER_VAL_AR_INVALID   = "field '%s', array format is invalid"
 	ER_VAL_AR_MAX_LEN   = "field '%s', array count exceeded maximum value"
