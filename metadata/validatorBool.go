@@ -22,11 +22,8 @@ type ModelFieldBool interface {
 func (f FieldBoolMetadata) Validate(field reflect.Value) (bool, error) {
 	modelField, ok := field.Interface().(ModelFieldBool)
 	if ok {
-		if !modelField.IsSet() || modelField.IsNull() {
-			return false, nil
-		}
 		//no farther validation
-		return modelField.GetValue(), nil
+		return (modelField.IsSet() || !modelField.IsNull()), nil
 	}
 
 	val, ok := field.Interface().(bool)
