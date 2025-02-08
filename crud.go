@@ -83,15 +83,15 @@ func PrepareUpdateModel(keyModel interface{}, dbUpdate types.DbUpdater) error {
 			return fmt.Errorf(ER_NOT_FIELD_IN_MD, "PrepareUpdateModel", fieldId)
 		}
 
-		//if value is not present in model or it is not valid - skeep field
-		if present, err := fieldMd.Validate(field); err != nil {
+		//if value is not present in model or it is not valid - skip field
+		if isSet, err := fieldMd.Validate(field); err != nil {
 			if errorList.Len() > 0 {
 				errorList.WriteString(" ")
 			}
 			errorList.WriteString(err.Error())
 			continue
 
-		} else if !present {
+		} else if !isSet {
 			continue
 		}
 

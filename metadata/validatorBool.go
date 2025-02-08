@@ -25,12 +25,13 @@ func (f FieldBoolMetadata) Validate(field reflect.Value) (bool, error) {
 		if !modelField.IsSet() || modelField.IsNull() {
 			return false, nil
 		}
-		return true, nil
+		//no farther validation
+		return modelField.GetValue(), nil
 	}
 
-	boolField, ok := field.Interface().(bool)
+	val, ok := field.Interface().(bool)
 	if !ok {
 		return true, fmt.Errorf(ER_VAL_CAST, f.ModelID(), "bool")
 	}
-	return boolField, nil
+	return val, nil
 }

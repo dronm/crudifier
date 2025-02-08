@@ -123,8 +123,10 @@ func (f FieldMetadata) ValidateRequired(field reflect.Value) error {
 	return nil
 }
 
+// Validate returns true if value is set.
+// Value is set/unset can only be checked for pointers.
 func (f FieldMetadata) Validate(field reflect.Value) (bool, error) {
-	if field.Type().Kind() == reflect.Ptr && field.IsValid() && !field.IsNil() {
+	if field.Type().Kind() == reflect.Ptr && field.IsValid() {
 		return !field.IsNil(), nil
 	}
 	return true, nil

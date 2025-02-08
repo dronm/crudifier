@@ -33,10 +33,10 @@ func (f FieldIntMetadata) Validate(field reflect.Value) (bool, error) {
 	var val int64
 	modelField, ok := field.Interface().(ModelFieldInt)
 	if ok {
-		val = modelField.GetValue()
 		if !modelField.IsSet() || modelField.IsNull() {
 			return false, nil
 		}
+		val = modelField.GetValue()
 
 	} else {
 		//standart type: int...

@@ -19,7 +19,7 @@ type FieldValidator interface {
 	SetPrimaryKey(bool)
 	SrvCalc() bool
 	SetSrvCalc(bool)
-	Validate(field reflect.Value) (bool, error)
+	Validate(field reflect.Value) (bool, error) //true if set
 	ValidateRequired(field reflect.Value) error
 }
 
