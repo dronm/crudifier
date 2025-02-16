@@ -35,31 +35,62 @@ type ModelFieldFloat interface {
 	IsNull() bool
 }
 
+func castFloat(fieldId string, field reflect.Value) (float64, error) {
+	var val float64
+	var ok bool
+
+	switch field.Type().Kind() {
+	case reflect.Float64:
+		val, ok = field.Interface().(float64)
+		if !ok {
+			return 0, fmt.Errorf(ER_VAL_CAST, fieldId, "float64")
+		}
+	case reflect.Float32:
+		val32, ok := field.Interface().(float32)
+		if !ok {
+			return 0, fmt.Errorf(ER_VAL_CAST, fieldId, "float32")
+		}
+		val = float64(val32)
+	default:
+		return 0, fmt.Errorf(ER_VAL_CAST, fieldId, "float64")
+	}
+
+	return val, nil
+}
+
 func (f FieldFloatMetadata) Validate(field reflect.Value) (bool, error) {
 	var val float64
 	modelField, ok := field.Interface().(ModelFieldFloat)
 	if ok {
 		val = modelField.GetValue()
-		if !modelField.IsSet() || modelField.IsNull() {
+		if !modelField.IsSet() {
 			return false, nil
+
+		} else if modelField.IsNull() {
+			return true, nil
+		}
+
+	} else if field.Type().Kind() == reflect.Ptr && field.IsNil() {
+		return true, nil
+
+	} else if field.Type().Kind() == reflect.Ptr {
+		var err error
+
+		elem := field.Elem()
+		if !elem.IsValid() {
+			return true, fmt.Errorf(ER_VAL_CAST, f.ModelID(), "float64")
+		}
+
+		val, err = castFloat(f.ModelID(), elem)
+		if err != nil {
+			return true, err
 		}
 
 	} else {
-		//standart type: int...
-		switch field.Type().Kind() {
-		case reflect.Float64:
-			val, ok = field.Interface().(float64)
-			if !ok {
-				return true, fmt.Errorf(ER_VAL_CAST, f.ModelID(), "float64")
-			}
-		case reflect.Float32:
-			val32, ok := field.Interface().(float32)
-			if !ok {
-				return true, fmt.Errorf(ER_VAL_CAST, f.ModelID(), "float32")
-			}
-			val = float64(val32)
-		default:
-			return true, fmt.Errorf(ER_VAL_CAST, f.ModelID(), "float64")
+		var err error
+		val, err = castFloat(f.ModelID(), field)
+		if err != nil {
+			return true, err
 		}
 	}
 

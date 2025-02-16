@@ -23,7 +23,7 @@ type ModelFieldDate interface {
 func (f FieldDateMetadata) Validate(field reflect.Value) (bool, error) {
 	modelField, ok := field.Interface().(ModelFieldDate)
 	if ok {
-		if !modelField.IsSet() || modelField.IsNull() {
+		if !modelField.IsSet() {
 			return false, nil
 		}
 		return true, nil

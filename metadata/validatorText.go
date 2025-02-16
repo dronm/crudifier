@@ -52,9 +52,14 @@ func (f FieldTextMetadata) Validate(field reflect.Value) (bool, error) {
 	textField, ok := field.Interface().(ModelFieldText)
 	if ok {
 		val = textField.GetValue()
-		if !textField.IsSet() || textField.IsNull() {
+		if !textField.IsSet() { //|| textField.IsNull()
 			return false, nil
+		} else if textField.IsNull() {
+			return true, nil
 		}
+
+	} else if field.Kind() == reflect.Ptr && field.IsNil() {
+		return true, nil
 
 	} else {
 		//standart type, need type assertion

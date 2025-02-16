@@ -52,8 +52,15 @@ func NewModelMetadata(model interface{}) (*ModelMetadata, error) {
 		}
 
 		meta.FieldList = append(meta.FieldList, fieldId)
-		fieldType := ParseFieldType(field.Type.Name())
-		switch fieldType {
+
+		fieldType := ""
+		if field.Type.Kind() == reflect.Ptr {
+			fieldType = field.Type.Elem().Name()
+
+		} else {
+			fieldType = field.Type.Name()
+		}
+		switch ParseFieldType(fieldType) {
 		case FIELD_TYPE_BOOL:
 			//no contraints
 			meta.Fields[fieldTagVal] = NewFieldBoolMedata(fieldId, fieldTagVal)

@@ -23,12 +23,28 @@ func (f FieldBoolMetadata) Validate(field reflect.Value) (bool, error) {
 	modelField, ok := field.Interface().(ModelFieldBool)
 	if ok {
 		//no farther validation
-		return (modelField.IsSet() || !modelField.IsNull()), nil
+		return modelField.IsSet(), nil
 	}
 
-	val, ok := field.Interface().(bool)
-	if !ok {
-		return true, fmt.Errorf(ER_VAL_CAST, f.ModelID(), "bool")
+	var val bool
+	if field.Kind() == reflect.Ptr && field.IsNil() {
+		//standart type, nil pointer
+		return true, nil
+	} else if field.Kind() == reflect.Ptr {
+		elem := field.Elem()
+		if !elem.IsValid() {
+			return true, fmt.Errorf(ER_VAL_CAST, f.ModelID(), "bool")
+		}
+		val, ok = elem.Interface().(bool)
+		if !ok {
+			return true, fmt.Errorf(ER_VAL_CAST, f.ModelID(), "bool")
+		}
+	} else {
+		val, ok = field.Interface().(bool)
+		if !ok {
+			return true, fmt.Errorf(ER_VAL_CAST, f.ModelID(), "bool")
+		}
 	}
+
 	return val, nil
 }

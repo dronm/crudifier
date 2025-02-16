@@ -40,9 +40,13 @@ func ValidateModel(model interface{}, fieldTagName string) error {
 	for _, fieldMd := range modelMd.Fields {
 		field := modelValue.FieldByName(fieldMd.ModelID())
 		if !field.IsValid() {
-			return fmt.Errorf("field %s not found in model", fieldMd.ModelID())
+			return fmt.Errorf("reflect.IsValid() failed for field %s", fieldMd.ModelID())
 		}
 		if _, err := fieldMd.Validate(field); err != nil {
+			return err
+		}
+
+		if err := fieldMd.ValidateRequired(field); err != nil {
 			return err
 		}
 	}

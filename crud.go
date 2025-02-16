@@ -78,6 +78,15 @@ func PrepareUpdateModel(keyModel interface{}, dbUpdate types.DbUpdater) error {
 
 		field := modelVal.Field(i)
 
+		if !field.CanInterface() {
+			return fmt.Errorf("reflect.CanInterface() failed for field %s", fieldId)
+			// continue
+		}
+
+		if !field.IsValid() {
+			return fmt.Errorf("reflect.IsValid() failed for field %s", fieldId)
+		}
+
 		fieldMd, ok := modelMd.Fields[fieldId]
 		if !ok {
 			return fmt.Errorf(ER_NOT_FIELD_IN_MD, "PrepareUpdateModel", fieldId)
@@ -92,6 +101,14 @@ func PrepareUpdateModel(keyModel interface{}, dbUpdate types.DbUpdater) error {
 			continue
 
 		} else if !isSet {
+			continue
+		}
+
+		if err := fieldMd.ValidateRequired(field); err != nil {
+			if errorList.Len() > 0 {
+				errorList.WriteString(" ")
+			}
+			errorList.WriteString(err.Error())
 			continue
 		}
 
@@ -219,7 +236,12 @@ func PrepareInsertModel(dbInsert types.DbInserter) error {
 		}
 		field := modelVal.Field(i)
 		if !field.CanInterface() {
-			continue
+			return fmt.Errorf("reflect.CanInterface() failed for field %s", fieldId)
+			// continue
+		}
+
+		if !field.IsValid() {
+			return fmt.Errorf("reflect.IsValid() failed for field %s", fieldId)
 		}
 
 		fieldMd, ok := modelMd.Fields[fieldId]

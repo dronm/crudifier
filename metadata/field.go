@@ -114,6 +114,10 @@ type NullableField interface {
 func (f FieldMetadata) ValidateRequired(field reflect.Value) error {
 	modelField, ok := field.Interface().(NullableField)
 	if !ok {
+		//standart type, check for ptr
+		if field.Kind() == reflect.Ptr && field.IsNil() && f.Required() {
+			return fmt.Errorf(ER_VAL_REQUIRED, f.Descr())
+		}
 		return nil
 	}
 	if f.Required() && (!modelField.IsSet() || modelField.IsNull()) {
