@@ -22,7 +22,7 @@ func (e *ValidationError) Error() string {
 	return e.ErrText
 }
 
-func ModelToDbFilters(model interface{}, filters types.DbFilters) error {
+func ModelToDbFilters(model interface{}, filters types.DbFilters, operator types.SQLFilterOperator, join types.FilterJoin) error {
 	modelVal := reflect.ValueOf(model)
 	modelType := reflect.TypeOf(model)
 	if modelVal.Kind() == reflect.Ptr {
@@ -40,8 +40,7 @@ func ModelToDbFilters(model interface{}, filters types.DbFilters) error {
 			continue
 		}
 		field := modelVal.Field(i)
-		filters.Add(fieldId, field.Interface(),
-			types.SQL_FILTER_OPERATOR_E, types.SQL_FILTER_JOIN_AND)
+		filters.Add(fieldId, field.Interface(), operator, join)
 	}
 
 	return nil
@@ -49,7 +48,7 @@ func ModelToDbFilters(model interface{}, filters types.DbFilters) error {
 
 // PrepareUpdateModel
 func PrepareUpdateModel(keyModel interface{}, dbUpdate types.DbUpdater) error {
-	if err := ModelToDbFilters(keyModel, dbUpdate.Filter()); err != nil {
+	if err := ModelToDbFilters(keyModel, dbUpdate.Filter(), types.SQL_FILTER_OPERATOR_E, types.SQL_FILTER_JOIN_AND); err != nil {
 		return err
 	}
 
@@ -197,7 +196,7 @@ func prepareSelectModel(dbSelect types.DbSelecter) error {
 // to model.
 func PrepareFetchModel(keyModel interface{}, dbSelect types.DbSelecter) error {
 	filters := dbSelect.Filter()
-	if err := ModelToDbFilters(keyModel, filters); err != nil {
+	if err := ModelToDbFilters(keyModel, filters, types.SQL_FILTER_OPERATOR_E, types.SQL_FILTER_JOIN_AND); err != nil {
 		return err
 	}
 	if filters.Len() == 0 {
