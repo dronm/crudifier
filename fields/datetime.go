@@ -35,13 +35,12 @@ func (v *FieldDateTime) UnmarshalJSON(data []byte) error {
 	v.notNull = true
 	v.value = time.Time{}
 
-	dataStr := string(data)
-	if dataStr == "null" {
+	if ValIsNull(data) {
 		v.notNull = false
 		return nil
 	}
 
-	tmp, err := time.Parse(FORMAT_DATE_TIME, dataStr)
+	tmp, err := time.Parse(FORMAT_DATE_TIME, RemoveQuotes(data))
 	if err != nil {
 		return err
 	}

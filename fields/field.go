@@ -8,3 +8,21 @@ const (
 const (
 	ER_UNSUPPORTED_TYPE = "unsupported data type for %s field: %v"
 )
+
+func ValIsNull(extVal []byte) bool {
+	if string(extVal) == `null` {
+		return true
+	}
+
+	return false
+}
+
+func RemoveQuotes(extVal []byte) string {
+	var v_str string
+	if extVal[0] == QUOTE_CHAR && byte(extVal[len(extVal)-1]) == QUOTE_CHAR {
+		v_str = string(extVal[1 : len(extVal)-1])
+	} else {
+		v_str = string(extVal)
+	}
+	return v_str
+}

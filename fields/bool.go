@@ -37,13 +37,12 @@ func (v *FieldBool) UnmarshalJSON(data []byte) error {
 	v.notNull = true
 	v.value = false
 
-	dataStr := string(data)
-	if dataStr == "null" {
+	if ValIsNull(data) {
 		v.notNull = false
 		return nil
 	}
 
-	if dataStr == "true" {
+	if string(data) == "true" {
 		v.value = true
 	}
 

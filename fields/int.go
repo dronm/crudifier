@@ -32,13 +32,12 @@ func (v *FieldInt) UnmarshalJSON(data []byte) error {
 	v.isSet = true
 	v.notNull = true
 
-	dataStr := string(data)
-	if dataStr == "null" {
+	if ValIsNull(data) {
 		v.notNull = false
 		return nil
 	}
 
-	tmp, err := strconv.ParseInt(dataStr, 10, 64)
+	tmp, err := strconv.ParseInt(string(data), 10, 64)
 	if err != nil {
 		return err
 	}

@@ -34,13 +34,12 @@ func (v *FieldFloat) UnmarshalJSON(data []byte) error {
 	v.isSet = true
 	v.notNull = true
 
-	dataStr := string(data)
-	if dataStr == "null" {
+	if ValIsNull(data) {
 		v.notNull = false
 		return nil
 	}
-	dataStr = strings.Replace(dataStr, ",", ".", 1)
-	tmp, err := strconv.ParseFloat(dataStr, 64)
+	// dataStr := strings.Replace(string(data), ",", ".", 1)
+	tmp, err := strconv.ParseFloat(string(data), 64)
 	if err != nil {
 		return err
 	}

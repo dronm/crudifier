@@ -41,11 +41,12 @@ func (v *FieldDateTimeTZ) UnmarshalJSON(data []byte) error {
 	v.notNull = true
 	v.value = time.Time{}
 
-	dataStr := string(data)
-	if dataStr == "null" {
+	if ValIsNull(data) {
 		v.notNull = false
 		return nil
 	}
+
+	dataStr := RemoveQuotes(data)
 
 	var layout string
 	if strings.Contains(dataStr, "+") {

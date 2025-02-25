@@ -32,15 +32,14 @@ func (v *FieldText) UnmarshalJSON(data []byte) error {
 	v.isSet = true
 	v.notNull = true
 
-	dataStr := string(data)
-	if dataStr == "null" {
+	if ValIsNull(data) {
 		v.notNull = false
 		return nil
 	}
 
 	var tmp string
 	if err := json.Unmarshal(data, &tmp); err != nil {
-		return fmt.Errorf(ER_UNSUPPORTED_TYPE, "text", dataStr)
+		return fmt.Errorf(ER_UNSUPPORTED_TYPE, "text", string(data))
 	}
 
 	v.value = tmp
