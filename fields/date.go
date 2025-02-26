@@ -40,7 +40,11 @@ func (v *FieldDate) UnmarshalJSON(data []byte) error {
 		return nil
 	}
 
-	tmp, err := time.Parse(FORMAT_DATE, RemoveQuotes(data))
+	dataStr := RemoveQuotes(data)
+	if len(dataStr) > len(FORMAT_DATE) {
+		dataStr = dataStr[0:len(FORMAT_DATE)]
+	}
+	tmp, err := time.Parse(FORMAT_DATE, dataStr)
 	if err != nil {
 		return err
 	}
