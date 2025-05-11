@@ -20,6 +20,18 @@ func (f FieldText) GetValue() string {
 	return f.value
 }
 
+func (f *FieldText) SetValue(v string) {
+	f.value = v
+	f.isSet = true
+	f.notNull = true
+}
+
+func (f *FieldText) UnsetValue() {
+	f.value = "" //default
+	f.isSet = true
+	f.notNull = false
+}
+
 func (f FieldText) IsSet() bool {
 	return f.isSet
 }

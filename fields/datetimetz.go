@@ -28,6 +28,18 @@ func (f FieldDateTimeTZ) GetValue() time.Time {
 	return f.value
 }
 
+func (f *FieldDateTimeTZ) SetValue(v time.Time) {
+	f.value = v
+	f.isSet = true
+	f.notNull = true
+}
+
+func (f *FieldDateTimeTZ) UnsetValue() {
+	f.value = time.Time{} //default
+	f.isSet = true
+	f.notNull = false
+}
+
 func (f FieldDateTimeTZ) IsSet() bool {
 	return f.isSet
 }
@@ -85,7 +97,7 @@ func (v FieldDateTimeTZ) String() string {
 }
 
 // driver.Scanner, driver.Valuer interfaces
-func (v *FieldDateTimeTZ) Scan(value interface{}) error {
+func (v *FieldDateTimeTZ) Scan(value any) error {
 	v.isSet = true
 	v.notNull = true
 

@@ -2,7 +2,8 @@ package types
 
 type DbFilters interface {
 	Add(fieldId string,
-		value interface{}, operator SQLFilterOperator,
+		value any, operator SQLFilterOperator,
 		join FilterJoin)
+	AddFullTextSearch(fieldId string, value any, join FilterJoin)
 	Len() int
 }

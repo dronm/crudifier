@@ -18,6 +18,18 @@ func NewFieldTime(value time.Time, isSet, isNull bool) FieldTime {
 	return FieldTime{value: value, isSet: isSet, notNull: !isNull}
 }
 
+func (f *FieldTime) SetValue(v time.Time) {
+	f.value = v
+	f.isSet = true
+	f.notNull = true
+}
+
+func (f *FieldTime) UnsetValue() {
+	f.value = time.Time{} //default
+	f.isSet = true
+	f.notNull = false
+}
+
 func (f FieldTime) GetValue() time.Time {
 	return f.value
 }
@@ -66,7 +78,7 @@ func (v FieldTime) String() string {
 }
 
 // driver.Scanner, driver.Valuer interfaces
-func (v *FieldTime) Scan(value interface{}) error {
+func (v *FieldTime) Scan(value any) error {
 	v.isSet = true
 	v.notNull = true
 

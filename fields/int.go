@@ -20,6 +20,18 @@ func (f FieldInt) GetValue() int64 {
 	return f.value
 }
 
+func (f *FieldInt) SetValue(v int64) {
+	f.value = v
+	f.isSet = true
+	f.notNull = true
+}
+
+func (f *FieldInt) UnsetValue() {
+	f.value = 0 //default
+	f.isSet = true
+	f.notNull = false
+}
+
 func (f FieldInt) IsSet() bool {
 	return f.isSet
 }

@@ -10,19 +10,21 @@ type FilterOperatorParam string
 
 // client query fileter operator values
 const (
-	FILTER_OPER_PAR_E       FilterOperatorParam = "e"       //equal
-	FILTER_OPER_PAR_L       FilterOperatorParam = "l"       //less
-	FILTER_OPER_PAR_G       FilterOperatorParam = "g"       //greater
-	FILTER_OPER_PAR_LE      FilterOperatorParam = "le"      //less and equal
-	FILTER_OPER_PAR_GE      FilterOperatorParam = "ge"      //greater and equal
-	FILTER_OPER_PAR_LK      FilterOperatorParam = "lk"      //like
-	FILTER_OPER_PAR_ILK     FilterOperatorParam = "ilk"     //ilike
-	FILTER_OPER_PAR_NE      FilterOperatorParam = "ne"      //not equal
-	FILTER_OPER_PAR_I       FilterOperatorParam = "i"       // IS
-	FILTER_OPER_PAR_IN      FilterOperatorParam = "in"      // in
-	FILTER_OPER_PAR_INCL    FilterOperatorParam = "incl"    //include
-	FILTER_OPER_PAR_ANY     FilterOperatorParam = "any"     //Any
-	FILTER_OPER_PAR_OVERLAP FilterOperatorParam = "overlap" //overlap
+	FILTER_OPER_PAR_E        FilterOperatorParam = "e"        // equal
+	FILTER_OPER_PAR_L        FilterOperatorParam = "l"        // less
+	FILTER_OPER_PAR_G        FilterOperatorParam = "g"        // greater
+	FILTER_OPER_PAR_LE       FilterOperatorParam = "le"       // less and equal
+	FILTER_OPER_PAR_GE       FilterOperatorParam = "ge"       // greater and equal
+	FILTER_OPER_PAR_LK       FilterOperatorParam = "lk"       // like
+	FILTER_OPER_PAR_ILK      FilterOperatorParam = "ilk"      // ilike
+	FILTER_OPER_PAR_NE       FilterOperatorParam = "ne"       // not equal
+	FILTER_OPER_PAR_I        FilterOperatorParam = "i"        // IS
+	FILTER_OPER_PAR_IN       FilterOperatorParam = "in"       // in
+	FILTER_OPER_PAR_INCL     FilterOperatorParam = "incl"     // include
+	FILTER_OPER_PAR_ANY      FilterOperatorParam = "any"      // Any
+	FILTER_OPER_PAR_OVERLAP  FilterOperatorParam = "overlap"  // overlap &&
+	FILTER_OPER_PAR_CONTAINS FilterOperatorParam = "contains" // contains @>
+	FILTER_OPER_PAR_TS       FilterOperatorParam = "fts"      // full text search
 )
 
 type FilterJoinParam string
@@ -55,8 +57,10 @@ type CollectionFilter struct {
 	Fields map[string]CollectionFilterField `json:"f"`
 }
 
-type CollectionFrom int
-type CollectionCount int
+type (
+	CollectionFrom  int
+	CollectionCount int
+)
 
 // CollectionParams holds all unmarshaled
 // client query parameters.

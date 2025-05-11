@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"reflect"
 	"regexp"
+	"slices"
 )
 
 type FieldTextMetadata struct {
@@ -94,13 +95,7 @@ func (f FieldTextMetadata) Validate(field reflect.Value) (bool, error) {
 	}
 
 	if len(f.valList) > 0 {
-		res := false
-		for _, v := range f.valList {
-			if v == val {
-				res = true
-				break
-			}
-		}
+		res := slices.Contains(f.valList, val)
 		if !res {
 			return true, fmt.Errorf(ER_VAL_VAL_LIST, f.Descr())
 		}

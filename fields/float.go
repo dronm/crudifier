@@ -22,6 +22,18 @@ func (f FieldFloat) GetValue() float64 {
 	return f.value
 }
 
+func (f *FieldFloat) SetValue(v float64) {
+	f.value = v
+	f.isSet = true
+	f.notNull = true
+}
+
+func (f *FieldFloat) UnsetValue() {
+	f.value = 0 //default
+	f.isSet = true
+	f.notNull = false
+}
+
 func (f FieldFloat) IsSet() bool {
 	return f.isSet
 }
@@ -63,7 +75,7 @@ func (v *FieldFloat) MarshalJSON() ([]byte, error) {
 }
 
 // driver.Scanner, driver.Valuer interfaces
-func (v *FieldFloat) Scan(value interface{}) error {
+func (v *FieldFloat) Scan(value any) error {
 	v.isSet = true
 	v.notNull = true
 

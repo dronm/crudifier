@@ -13,9 +13,9 @@ type PgSelect struct {
 	sorter         *PgSorters
 	limit          *PgLimit
 	fieldIds       []string
-	fieldValues    []interface{}
+	fieldValues    []any
 	aggFields      []string
-	aggFieldValues []interface{}
+	aggFieldValues []any
 }
 
 func NewPgSelect(model types.DbAggModel, filter *PgFilters, sorter *PgSorters, limit *PgLimit) *PgSelect {
@@ -51,23 +51,23 @@ func (s PgSelect) Sorter() types.DbSorters {
 	return s.sorter
 }
 
-func (s PgSelect) FieldValues() []interface{} {
+func (s PgSelect) FieldValues() []any {
 	return s.fieldValues
 }
 
-func (s *PgSelect) AddField(id string, val interface{}) {
+func (s *PgSelect) AddField(id string, val any) {
 	s.fieldIds = append(s.fieldIds, id)
 	s.fieldValues = append(s.fieldValues, val)
 }
 
 // AddAggField adds aggregate function, fn is the function,
 // val is the value for scaning result.
-func (s *PgSelect) AddAggField(fn string, val interface{}) {
+func (s *PgSelect) AddAggField(fn string, val any) {
 	s.aggFields = append(s.aggFields, fn)
 	s.aggFieldValues = append(s.aggFieldValues, val)
 }
 
-func (s PgSelect) SQL(queryParams *[]interface{}) string {
+func (s PgSelect) SQL(queryParams *[]any) string {
 	var filterSQL string
 	if s.filter != nil {
 		filterSQL = s.filter.SQL(queryParams)
@@ -90,7 +90,7 @@ func (s PgSelect) SQL(queryParams *[]interface{}) string {
 }
 
 // CollectionSQL returns two queries: collecion query and aggregation query.
-func (s PgSelect) CollectionSQL(queryParams *[]interface{}) (string, string) {
+func (s PgSelect) CollectionSQL(queryParams *[]any) (string, string) {
 	var filterSQL string
 	if s.filter != nil {
 		filterSQL = s.filter.SQL(queryParams)

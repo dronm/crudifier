@@ -1,6 +1,7 @@
 package pg
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/dronm/crudifier/types"
@@ -8,19 +9,27 @@ import (
 
 type PgFilters []PgFilter
 
-// Add(fieldId string, value interface{}, operation types.SQLFilterOperator, join types.FilterJoin)
+// Add(fieldId string, value any, operation types.SQLFilterOperator, join types.FilterJoin)
 func (f *PgFilters) Add(fieldId string,
-	value interface{}, operator types.SQLFilterOperator,
+	value any, operator types.SQLFilterOperator,
 	join types.FilterJoin) {
 
 	*f = append(*f, PgFilter{fieldID: fieldId, value: value, join: join, operator: operator})
+}
+
+func (f *PgFilters) AddFullTextSearch(fieldId string, value any, join types.FilterJoin) {
+	*f = append(*f, PgFilter{
+		value: value,
+		join: join,
+		expression: fmt.Sprintf("%s @@ to_tsquery('russian', {{PARAM}})", fieldId),
+	})
 }
 
 func (f PgFilters) Len() int {
 	return len(f)
 }
 
-func (f PgFilters) SQL(queryParams *[]interface{}) string {
+func (f PgFilters) SQL(queryParams *[]any) string {
 	if len(f) == 0 {
 		return ""
 	} else if len(f) == 1 {

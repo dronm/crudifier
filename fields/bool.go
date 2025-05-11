@@ -24,6 +24,18 @@ func (f FieldBool) GetValue() bool {
 	return f.value
 }
 
+func (f *FieldBool) SetValue(v bool) {
+	f.value = v
+	f.isSet = true
+	f.notNull = true
+}
+
+func (f *FieldBool) UnsetValue() {
+	f.value = false //default
+	f.isSet = true
+	f.notNull = false
+}
+
 func (f FieldBool) IsSet() bool {
 	return f.isSet
 }
@@ -71,7 +83,7 @@ func (v FieldBool) String() string {
 }
 
 // driver.Scanner, driver.Valuer interfaces
-func (v *FieldBool) Scan(value interface{}) error {
+func (v *FieldBool) Scan(value any) error {
 	v.isSet = true
 	v.notNull = true
 

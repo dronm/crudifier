@@ -27,7 +27,7 @@ func ParseSorterParams(model types.DbModel, dbSorter types.DbSorters, params Col
 
 	for _, sorter := range params.Sorter {
 		if _, ok := modelMd.Fields[sorter.Field]; !ok {
-			return fmt.Errorf(ER_NOT_FIELD_IN_MD, "ParseSorterParams", sorter.Field)
+			return fmt.Errorf(ER_NO_FIELD_IN_MD, "ParseSorterParams", sorter.Field)
 		}
 
 		var sortDirect types.SQLSortDirect
@@ -68,9 +68,12 @@ func ParseFilterParams(model types.DbModel, dbFilter types.DbFilters, params Col
 
 		//and filter value can be assigned to model field.
 		for filterFieldId, filterField := range filter.Fields {
+			if filterField.Value == nil {
+				continue
+			}
 			fieldMd, ok := modelMd.Fields[filterFieldId]
 			if !ok {
-				return fmt.Errorf(ER_NOT_FIELD_IN_MD, "ParseFilterParams", filterFieldId)
+				return fmt.Errorf(ER_NO_FIELD_IN_MD, "ParseFilterParams", filterFieldId)
 			}
 			if _, err := fieldMd.Validate(reflect.ValueOf(filterField.Value)); err != nil {
 				if errorList.Len() > 0 {
@@ -109,12 +112,20 @@ func ParseFilterParams(model types.DbModel, dbFilter types.DbFilters, params Col
 				operator = types.SQL_FILTER_OPERATOR_ANY
 			case FILTER_OPER_PAR_OVERLAP:
 				operator = types.SQL_FILTER_OPERATOR_OVERLAP
+			case FILTER_OPER_PAR_CONTAINS:
+				operator = types.SQL_FILTER_OPERATOR_CONTAINS
+			case FILTER_OPER_PAR_TS:
+				operator = types.SQL_FILTER_OPERATOR_TS
 			}
 
 			if dbFilter == nil {
 				return fmt.Errorf(ER_FILTER_NOT_INIT, "ParseFilterParams")
 			}
-			dbFilter.Add(filterFieldId, filterField.Value, operator, join)
+			if operator == types.SQL_FILTER_OPERATOR_TS {
+				dbFilter.AddFullTextSearch(filterFieldId, filterField.Value, join)
+			}else{
+				dbFilter.Add(filterFieldId, filterField.Value, operator, join)
+			}
 		}
 	}
 

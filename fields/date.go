@@ -22,6 +22,18 @@ func (f FieldDate) GetValue() time.Time {
 	return f.value
 }
 
+func (f *FieldDate) SetValue(v time.Time) {
+	f.value = v
+	f.isSet = true
+	f.notNull = true
+}
+
+func (f *FieldDate) UnsetValue() {
+	f.value = time.Time{} //default
+	f.isSet = true
+	f.notNull = false
+}
+
 func (f FieldDate) IsSet() bool {
 	return f.isSet
 }
@@ -70,7 +82,7 @@ func (v FieldDate) String() string {
 }
 
 // driver.Scanner, driver.Valuer interfaces
-func (v *FieldDate) Scan(value interface{}) error {
+func (v *FieldDate) Scan(value any) error {
 	v.isSet = true
 	v.notNull = true
 
@@ -101,3 +113,4 @@ func (v FieldDate) Value() (driver.Value, error) {
 	}
 	return driver.Value(v.value), nil
 }
+

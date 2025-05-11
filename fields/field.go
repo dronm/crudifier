@@ -10,11 +10,7 @@ const (
 )
 
 func ValIsNull(extVal []byte) bool {
-	if string(extVal) == `null` {
-		return true
-	}
-
-	return false
+	return string(extVal) == `null`
 }
 
 func RemoveQuotes(extVal []byte) string {

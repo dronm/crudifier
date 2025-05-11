@@ -23,7 +23,7 @@ type FieldValidator interface {
 	ValidateRequired(field reflect.Value) error
 }
 
-func ValidateModel(model interface{}, fieldTagName string) error {
+func ValidateModel(model any, fieldTagName string) error {
 	modelValue := reflect.ValueOf(model)
 	if modelValue.Kind() == reflect.Ptr {
 		modelValue = modelValue.Elem() // Dereference pointer types

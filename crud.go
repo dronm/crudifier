@@ -1,6 +1,7 @@
 package crudifier
 
 import (
+	"encoding/json"
 	"fmt"
 	"reflect"
 	"strings"
@@ -22,7 +23,11 @@ func (e *ValidationError) Error() string {
 	return e.ErrText
 }
 
-func ModelToDbFilters(model interface{}, filters types.DbFilters, operator types.SQLFilterOperator, join types.FilterJoin) error {
+func NewValidationError(errText string) *ValidationError {
+	return &ValidationError{ErrText: errText}
+}
+
+func ModelToDbFilters(model any, filters types.DbFilters, operator types.SQLFilterOperator, join types.FilterJoin) error {
 	modelVal := reflect.ValueOf(model)
 	modelType := reflect.TypeOf(model)
 	if modelVal.Kind() == reflect.Ptr {
@@ -30,7 +35,7 @@ func ModelToDbFilters(model interface{}, filters types.DbFilters, operator types
 		modelVal = modelVal.Elem()
 	}
 	if modelVal.Kind() != reflect.Struct {
-		return fmt.Errorf(metadata.ER_MODEL_NOT_A_POINTER_OR_STRUCT, "PrepareUpdateModel")
+		return fmt.Errorf(metadata.ER_MODEL_NOT_A_POINTER_OR_STRUCT, "ModelToDbFilters")
 	}
 
 	for i := 0; i < modelVal.NumField(); i++ {
@@ -47,7 +52,7 @@ func ModelToDbFilters(model interface{}, filters types.DbFilters, operator types
 }
 
 // PrepareUpdateModel
-func PrepareUpdateModel(keyModel interface{}, dbUpdate types.DbUpdater) error {
+func PrepareUpdateModel(keyModel any, dbUpdate types.DbUpdater) error {
 	if err := ModelToDbFilters(keyModel, dbUpdate.Filter(), types.SQL_FILTER_OPERATOR_E, types.SQL_FILTER_JOIN_AND); err != nil {
 		return err
 	}
@@ -88,7 +93,7 @@ func PrepareUpdateModel(keyModel interface{}, dbUpdate types.DbUpdater) error {
 
 		fieldMd, ok := modelMd.Fields[fieldId]
 		if !ok {
-			return fmt.Errorf(ER_NOT_FIELD_IN_MD, "PrepareUpdateModel", fieldId)
+			return fmt.Errorf(ER_NO_FIELD_IN_MD, "PrepareUpdateModel", fieldId)
 		}
 
 		//if value is not present in model or it is not valid - skip field
@@ -100,7 +105,7 @@ func PrepareUpdateModel(keyModel interface{}, dbUpdate types.DbUpdater) error {
 			continue
 
 		} else if !isSet {
-			continue
+			continue // if no value - skeep required checking
 		}
 
 		if err := fieldMd.ValidateRequired(field); err != nil {
@@ -112,7 +117,17 @@ func PrepareUpdateModel(keyModel interface{}, dbUpdate types.DbUpdater) error {
 		}
 
 		//value exists and valid
-		dbUpdate.AddField(fieldId, field.Interface())
+		if fieldMd.DataType() == metadata.FIELD_TYPE_UNDEFINED {
+			b, err := json.Marshal(field.Interface())
+			if err != nil {
+				errorList.WriteString(err.Error())
+				continue
+			}
+			dbUpdate.AddField(fieldId, b)
+		}else{
+			dbUpdate.AddField(fieldId, field.Interface())
+		}
+		// fmt.Println("PrepareUpdate fieldId:",fieldId,"value:",field, "fieldMD.DataType():", fieldMd.DataType())
 	}
 
 	if errorList.Len() > 0 {
@@ -166,11 +181,10 @@ func PrepareFetchModelCollection(dbSelect types.DbSelecter, params CollectionPar
 		return err
 	}
 
-	return prepareSelectModel(dbSelect)
+	return prepareSelectModel(dbSelect.(types.PrepareModel), dbSelect.Model())
 }
 
-func prepareSelectModel(dbSelect types.DbSelecter) error {
-	model := dbSelect.Model()
+func prepareSelectModel(selectModel types.PrepareModel, model any) error {
 	modelVal := reflect.ValueOf(model)
 	modelType := reflect.TypeOf(model)
 	if modelVal.Kind() != reflect.Ptr {
@@ -187,23 +201,23 @@ func prepareSelectModel(dbSelect types.DbSelecter) error {
 			continue
 		}
 		field := modelVal.Field(i)
-		dbSelect.AddField(fieldId, field.Addr().Interface())
+		selectModel.AddField(fieldId, field.Addr().Interface())
 	}
 	return nil
 }
 
 // PrepareFetchModel prepares for retrieving one object from database and maps its fields
 // to model.
-func PrepareFetchModel(keyModel interface{}, dbSelect types.DbSelecter) error {
+func PrepareFetchModel(keyModel any, dbSelect types.DbDetailSelecter) error {
 	filters := dbSelect.Filter()
 	if err := ModelToDbFilters(keyModel, filters, types.SQL_FILTER_OPERATOR_E, types.SQL_FILTER_JOIN_AND); err != nil {
 		return err
 	}
 	if filters.Len() == 0 {
-		return fmt.Errorf(ER_NOT_KEYS, "PrepareFetchModel")
+		return fmt.Errorf(ER_NO_KEYS, "PrepareFetchModel")
 	}
 
-	return prepareSelectModel(dbSelect)
+	return prepareSelectModel(dbSelect, dbSelect.Model())
 }
 
 // PrepareInsertModel analyses model proviede in dbInsert.
@@ -245,7 +259,7 @@ func PrepareInsertModel(dbInsert types.DbInserter) error {
 
 		fieldMd, ok := modelMd.Fields[fieldId]
 		if !ok {
-			return fmt.Errorf(ER_NOT_FIELD_IN_MD, "PrepareInsertModel", fieldId)
+			return fmt.Errorf(ER_NO_FIELD_IN_MD, "PrepareInsertModel", fieldId)
 		}
 
 		if err := fieldMd.ValidateRequired(field); err != nil {
@@ -274,8 +288,90 @@ func PrepareInsertModel(dbInsert types.DbInserter) error {
 		}
 
 		//ordinary field, present && valid
-		dbInsert.AddField(fieldId, field.Interface())
+		if fieldMd.DataType() == metadata.FIELD_TYPE_UNDEFINED {
+			b, err := json.Marshal(field.Interface())
+			if err != nil {
+				errorList.WriteString(err.Error())
+				continue
+			}
+			dbInsert.AddField(fieldId, b)
+		}else{
+			dbInsert.AddField(fieldId, field.Interface())
+		}
+
 	}
+	if errorList.Len() > 0 {
+		return &ValidationError{ErrText: errorList.String()}
+	}
+
+	return nil
+}
+
+// ValidateModel checks the given model. Validation error is thrown in case of 
+// forInsert flag is set to true, a field is required but not set or null.
+// If forInsert is false and field is not set, required field annotation is not checked.
+// In this latter case the error is thrown only the field value is set to null.
+func ValidateModel(model any, forInsert bool) error {
+	//server autocalc fields need to be returned
+	modelVal := reflect.ValueOf(model)
+	modelType := reflect.TypeOf(model)
+	if modelVal.Kind() != reflect.Ptr {
+		return fmt.Errorf(metadata.ER_MODEL_NOT_A_POINTER, "ValidateModel")
+	}
+
+	modelType = modelType.Elem()
+	modelVal = modelVal.Elem()
+
+	modelMd, err := metadata.NewModelMetadata(model)
+	if err != nil {
+		return err
+	}
+
+	var errorList strings.Builder
+	for i := 0; i < modelVal.NumField(); i++ {
+		fieldType := modelType.Field(i)
+		fieldId := fieldType.Tag.Get(metadata.FieldAnnotationName)
+		if fieldId == "-" || fieldId == "" {
+			continue
+		}
+		field := modelVal.Field(i)
+		if !field.CanInterface() {
+			return fmt.Errorf("reflect.CanInterface() failed for field %s", fieldId)
+			// continue
+		}
+
+		if !field.IsValid() {
+			return fmt.Errorf("reflect.IsValid() failed for field %s", fieldId)
+		}
+
+		fieldMd, ok := modelMd.Fields[fieldId]
+		if !ok {
+			return fmt.Errorf(ER_NO_FIELD_IN_MD, "ValidateModel", fieldId)
+		}
+
+		if fieldMd.SrvCalc() {
+			continue
+		}
+
+		if isSet, err := fieldMd.Validate(field); err != nil {
+			if errorList.Len() > 0 {
+				errorList.WriteString(" ")
+			}
+			errorList.WriteString(err.Error())
+
+		} else if !isSet && !forInsert {
+			continue // if no value - skeep required checking
+		}
+
+		if err := fieldMd.ValidateRequired(field); err != nil {
+			if errorList.Len() > 0 {
+				errorList.WriteString(" ")
+			}
+			errorList.WriteString(err.Error())
+			continue
+		}
+	}
+
 	if errorList.Len() > 0 {
 		return &ValidationError{ErrText: errorList.String()}
 	}

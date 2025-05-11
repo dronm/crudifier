@@ -23,7 +23,7 @@ func (d PgDelete) Filter() PgFilters {
 	return d.filter
 }
 
-func (s PgDelete) SQL(queryParams *[]interface{}) string {
+func (s PgDelete) SQL(queryParams *[]any) string {
 	return fmt.Sprintf("DELETE FROM %s%s",
 		s.model.Relation(),
 		s.filter.SQL(queryParams),

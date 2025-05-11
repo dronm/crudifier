@@ -17,7 +17,7 @@ func (t TableA) Relation() string {
 	return "table_a"
 }
 
-func (t TableA) CollectionAgg() interface{} {
+func (t TableA) CollectionAgg() any {
 	return nil
 }
 
@@ -36,7 +36,7 @@ func (t TableB) Relation() string {
 	return "table_b"
 }
 
-func (t TableB) CollectionAgg() interface{} {
+func (t TableB) CollectionAgg() any {
 	return &struct {
 		TotCount fields.FieldInt `json:"tot_count" agg:"count(*)"`
 	}{
@@ -54,7 +54,7 @@ func (t TableC) Relation() string {
 	return "table_c"
 }
 
-func (t TableC) CollectionAgg() interface{} {
+func (t TableC) CollectionAgg() any {
 	return &struct {
 		TotCount fields.FieldInt `json:"tot_count" agg:"count(*)"`
 	}{
@@ -63,7 +63,7 @@ func (t TableC) CollectionAgg() interface{} {
 }
 func TestPrepareFetchCollection(t *testing.T) {
 	tests := []struct {
-		keyModel  interface{}
+		keyModel  any
 		dbSelect  pg.PgSelect
 		parms     CollectionParams
 		expSql    string
@@ -113,7 +113,7 @@ func TestPrepareFetchCollection(t *testing.T) {
 				t.Fatal("PrepareInsertModel() returned no error, but should return one")
 			}
 
-			params := make([]interface{}, 0)
+			params := make([]any, 0)
 			gotSql, gotAggSql := test.dbSelect.CollectionSQL(&params)
 			if test.expSql != gotSql {
 				t.Fatalf("expected %s, got %s", test.expSql, gotSql)
@@ -128,8 +128,8 @@ func TestPrepareFetchCollection(t *testing.T) {
 
 func TestPrepareFetch(t *testing.T) {
 	tests := []struct {
-		keyModel interface{}
-		dbSelect pg.PgSelect
+		keyModel any
+		dbSelect pg.PgDetailSelect
 		expSql   string
 		valid    bool
 	}{
@@ -137,10 +137,8 @@ func TestPrepareFetch(t *testing.T) {
 			&struct {
 				ID fields.FieldInt `json:"id" required:"true"`
 			}{ID: fields.NewFieldInt(1, true, false)},
-			*pg.NewPgSelect(&TableB{},
+			*pg.NewPgDetailSelect(&TableB{},
 				&pg.PgFilters{},
-				&pg.PgSorters{},
-				pg.NewPgLimit(0, 1),
 			),
 			"",
 			true,
@@ -156,7 +154,7 @@ func TestPrepareFetch(t *testing.T) {
 				t.Fatal("PrepareInsertModel() returned no error, but should return one")
 			}
 
-			params := make([]interface{}, 0)
+			params := make([]any, 0)
 			gotSql := test.dbSelect.SQL(&params)
 			// if test.expSql != gotSql {
 			// 	t.Fatalf("expected %s, got %s", test.expSql, gotSql)
@@ -168,7 +166,7 @@ func TestPrepareFetch(t *testing.T) {
 
 func TestPrepareUpdate(t *testing.T) {
 	tests := []struct {
-		keyModel interface{}
+		keyModel any
 		update   pg.PgUpdate
 		expSql   string
 		valid    bool
@@ -208,7 +206,7 @@ func TestPrepareUpdate(t *testing.T) {
 				t.Fatal("PrepareInsertModel() returned no error, but should return one")
 			}
 
-			params := make([]interface{}, 0)
+			params := make([]any, 0)
 			gotSql := test.update.SQL(&params)
 			// if test.expSql != gotSql {
 			// 	t.Fatalf("expected %s, got %s", test.expSql, gotSql)
@@ -254,7 +252,7 @@ func TestPrepareInsert(t *testing.T) {
 				t.Fatal("PrepareInsertModel() returned no error, but should return one")
 			}
 
-			params := make([]interface{}, 0)
+			params := make([]any, 0)
 			gotSql := test.insert.SQL(&params)
 			// if test.expSql != gotSql {
 			// 	t.Fatalf("expected %s, got %s", test.expSql, gotSql)
@@ -280,7 +278,7 @@ func TestDeleteQuery(t *testing.T) {
 	}
 	for _, test := range tests {
 		t.Run(t.Name(), func(t *testing.T) {
-			params := make([]interface{}, 0)
+			params := make([]any, 0)
 			gotSql := test.delete.SQL(&params)
 			if test.expSql != gotSql {
 				t.Fatalf("expected %s, got %s", test.expSql, gotSql)

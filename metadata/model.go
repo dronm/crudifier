@@ -21,7 +21,7 @@ var (
 
 // NewModelMetadata returns the Metadata structure for a given type.
 // Internally it stores a race-safe cache.
-func NewModelMetadata(model interface{}) (*ModelMetadata, error) {
+func NewModelMetadata(model any) (*ModelMetadata, error) {
 	modelType := reflect.TypeOf(model)
 	if modelType.Kind() == reflect.Ptr {
 		modelType = modelType.Elem() // Dereference pointer types

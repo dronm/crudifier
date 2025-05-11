@@ -14,7 +14,7 @@ func TestValidateModel(t *testing.T) {
 		name      string
 		expErr    bool
 		expErrStr string
-		model     interface{}
+		model     any
 	}{
 		{"enum", true,
 			fmt.Sprintf(ER_VAL_VAL_LIST, "b"),

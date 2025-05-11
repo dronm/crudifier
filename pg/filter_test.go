@@ -24,7 +24,7 @@ func TestFiltersSQL(t *testing.T) {
 	}
 	for _, test := range tests {
 		t.Run(t.Name(), func(t *testing.T) {
-			params := make([]interface{}, 0)
+			params := make([]any, 0)
 			gotSql := test.filters.SQL(&params)
 			if test.expSql != gotSql {
 				t.Fatalf("expected %s, got %s", test.expSql, gotSql)
@@ -52,7 +52,7 @@ func TestFilterSQL(t *testing.T) {
 	}
 	for _, test := range tests {
 		t.Run(t.Name(), func(t *testing.T) {
-			params := make([]interface{}, 0)
+			params := make([]any, 0)
 			gotSql := test.filter.SQL(&params)
 			if test.expSql != gotSql {
 				t.Fatalf("expected %s, got %s", test.expSql, gotSql)

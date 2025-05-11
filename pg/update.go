@@ -21,7 +21,7 @@ func (u PgUpdate) Model() types.DbModel {
 	return u.model
 }
 
-func (u *PgUpdate) AddField(id string, value interface{}) {
+func (u *PgUpdate) AddField(id string, value any) {
 	u.assigner.Add(id, value)
 }
 
@@ -29,7 +29,7 @@ func (u PgUpdate) Filter() types.DbFilters {
 	return u.filter
 }
 
-func (s PgUpdate) SQL(queryParams *[]interface{}) string {
+func (s PgUpdate) SQL(queryParams *[]any) string {
 	var assignerSQL string
 	if s.assigner != nil {
 		assignerSQL = s.assigner.SQL(queryParams)

@@ -6,7 +6,7 @@ import (
 
 type PgAssigners []PgAssigner
 
-func (a PgAssigners) SQL(queryParams *[]interface{}) string {
+func (a PgAssigners) SQL(queryParams *[]any) string {
 	if len(a) == 0 {
 		return ""
 	} else if len(a) == 1 {
@@ -24,7 +24,7 @@ func (a PgAssigners) SQL(queryParams *[]interface{}) string {
 	return sqlSt.String()
 }
 
-func (a *PgAssigners) Add(fieldId string, value interface{}) {
+func (a *PgAssigners) Add(fieldId string, value any) {
 	*a = append(*a, PgAssigner{fieldID: fieldId, value: value})
 }
 
