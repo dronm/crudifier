@@ -26,8 +26,13 @@ func ParseSorterParams(model types.DbModel, dbSorter types.DbSorters, params Col
 	}
 
 	for _, sorter := range params.Sorter {
-		if _, ok := modelMd.Fields[sorter.Field]; !ok {
-			return fmt.Errorf(ER_NO_FIELD_IN_MD, "ParseSorterParams", sorter.Field)
+		fieldID := sorter.Field
+		structFieldInd := strings.Index(fieldID, "->")
+		if structFieldInd >= 0 {
+			fieldID = fieldID[:structFieldInd]
+		}
+		if _, ok := modelMd.Fields[fieldID]; !ok {
+			return fmt.Errorf(ER_NO_FIELD_IN_MD, "ParseSorterParams", fieldID)
 		}
 
 		var sortDirect types.SQLSortDirect
@@ -53,11 +58,11 @@ func ParseFilterParams(model types.DbModel, dbFilter types.DbFilters, params Col
 		return err
 	}
 
-	var errorList strings.Builder //validation errors
+	var errorList strings.Builder // validation errors
 
-	//check if every filter field exists in dbSelect.Model
+	// check if every filter field exists in dbSelect.Model
 	for _, filter := range params.Filter {
-		//join is common for all fields in this filter
+		// join is common for all fields in this filter
 		var join types.FilterJoin
 		switch filter.Join {
 		case FILTER_PAR_JOIN_OR:
@@ -66,24 +71,38 @@ func ParseFilterParams(model types.DbModel, dbFilter types.DbFilters, params Col
 			join = types.SQL_FILTER_JOIN_AND
 		}
 
-		//and filter value can be assigned to model field.
-		for filterFieldId, filterField := range filter.Fields {
-			if filterField.Value == nil {
-				continue
-			}
-			fieldMd, ok := modelMd.Fields[filterFieldId]
-			if !ok {
-				return fmt.Errorf(ER_NO_FIELD_IN_MD, "ParseFilterParams", filterFieldId)
-			}
-			if _, err := fieldMd.Validate(reflect.ValueOf(filterField.Value)); err != nil {
-				if errorList.Len() > 0 {
-					errorList.WriteString(" ")
-				}
-				errorList.WriteString(err.Error())
-				continue
+		// and filter value can be assigned to model field.
+		for filterFieldID, filterField := range filter.Fields {
+			// if filterField.Value == nil {
+			// 	fmt.Println("ParseFilterParams skip nil value for field:",filterFieldID)
+			// 	continue
+			// }
+
+			filterModelFieldID := filterFieldID
+
+			//json field search
+			structFieldInd := strings.Index(filterModelFieldID, "->")
+			if structFieldInd >= 0 {
+				filterModelFieldID = filterModelFieldID[:structFieldInd]
 			}
 
-			//resolve operator
+			fieldMd, ok := modelMd.Fields[filterModelFieldID]
+			if !ok {
+				return fmt.Errorf(ER_NO_FIELD_IN_MD, "ParseFilterParams", filterModelFieldID)
+			}
+
+			//nil values must be included!
+			if filterField.Value != nil {
+				if _, err := fieldMd.Validate(reflect.ValueOf(filterField.Value)); err != nil {
+					if errorList.Len() > 0 {
+						errorList.WriteString(" ")
+					}
+					errorList.WriteString(err.Error())
+					continue
+				}
+			}
+
+			// resolve operator
 			var operator types.SQLFilterOperator
 			switch filterField.Operator {
 			case FILTER_OPER_PAR_E:
@@ -121,11 +140,21 @@ func ParseFilterParams(model types.DbModel, dbFilter types.DbFilters, params Col
 			if dbFilter == nil {
 				return fmt.Errorf(ER_FILTER_NOT_INIT, "ParseFilterParams")
 			}
-			if operator == types.SQL_FILTER_OPERATOR_TS {
-				dbFilter.AddFullTextSearch(filterFieldId, filterField.Value, join)
-			}else{
-				dbFilter.Add(filterFieldId, filterField.Value, operator, join)
+			switch operator {
+			case types.SQL_FILTER_OPERATOR_TS:
+				dbFilter.AddFullTextSearch(filterFieldID, filterField.Value, join)
+			case types.SQL_FILTER_OPERATOR_INCL:
+				dbFilter.AddArrayInclude(filterFieldID, filterField.Value, join)
+			default:
+				dbFilter.Add(filterFieldID, filterField.Value, operator, join)
 			}
+			// if operator == types.SQL_FILTER_OPERATOR_TS {
+			// 	dbFilter.AddFullTextSearch(filterFieldID, filterField.Value, join)
+			// } else if operator == types.SQL_FILTER_OPERATOR_INCL {
+			// 	dbFilter.AddArrayInclude(filterFieldID, filterField.Value, join)
+			// } else {
+			// 	dbFilter.Add(filterFieldID, filterField.Value, operator, join)
+			// }
 		}
 	}
 

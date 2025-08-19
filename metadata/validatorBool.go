@@ -9,8 +9,8 @@ type FieldBoolMetadata struct {
 	FieldMetadata
 }
 
-func NewFieldBoolMedata(modelFieldId, id string) *FieldBoolMetadata {
-	return &FieldBoolMetadata{FieldMetadata: FieldMetadata{modelId: modelFieldId, id: id, dataType: FIELD_TYPE_BOOL}}
+func NewFieldBoolMedata(modelFieldID, id string) *FieldBoolMetadata {
+	return &FieldBoolMetadata{FieldMetadata: FieldMetadata{modelId: modelFieldID, id: id, dataType: FIELD_TYPE_BOOL}}
 }
 
 type ModelFieldBool interface {

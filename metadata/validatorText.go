@@ -16,8 +16,8 @@ type FieldTextMetadata struct {
 	valList   []string
 }
 
-func NewFieldTextMedata(modelFieldId, id string) *FieldTextMetadata {
-	return &FieldTextMetadata{FieldMetadata: FieldMetadata{modelId: modelFieldId, id: id, dataType: FIELD_TYPE_TEXT}}
+func NewFieldTextMedata(modelFieldID, id string) *FieldTextMetadata {
+	return &FieldTextMetadata{FieldMetadata: FieldMetadata{modelId: modelFieldID, id: id, dataType: FIELD_TYPE_TEXT}}
 }
 
 func (f FieldTextMetadata) MaxLength() *int64 {

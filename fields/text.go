@@ -72,8 +72,8 @@ func (v *FieldText) MarshalJSON() ([]byte, error) {
 	}
 }
 
-// driver.Scanner, driver.Valuer interfaces
-func (v *FieldText) Scan(value interface{}) error {
+// Scan is for driver.Scanner, driver.Valuer interfaces
+func (v *FieldText) Scan(value any) error {
 	v.isSet = true
 	v.notNull = true
 

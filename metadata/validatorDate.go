@@ -10,8 +10,8 @@ type FieldDateMetadata struct {
 	FieldMetadata
 }
 
-func NewFieldDateMedata(modelFieldId, id string, dataType FieldDataType) *FieldDateMetadata {
-	return &FieldDateMetadata{FieldMetadata: FieldMetadata{modelId: modelFieldId, id: id, dataType: dataType}}
+func NewFieldDateMedata(modelFieldID, id string, dataType FieldDataType) *FieldDateMetadata {
+	return &FieldDateMetadata{FieldMetadata: FieldMetadata{modelId: modelFieldID, id: id, dataType: dataType}}
 }
 
 type ModelFieldDate interface {

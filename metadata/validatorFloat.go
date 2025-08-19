@@ -13,8 +13,8 @@ type FieldFloatMetadata struct {
 	precision int64
 }
 
-func NewFieldFloatMedata(modelFieldId, id string) *FieldFloatMetadata {
-	return &FieldFloatMetadata{FieldMetadata: FieldMetadata{modelId: modelFieldId, id: id, dataType: FIELD_TYPE_FLOAT}}
+func NewFieldFloatMedata(modelFieldID, id string) *FieldFloatMetadata {
+	return &FieldFloatMetadata{FieldMetadata: FieldMetadata{modelId: modelFieldID, id: id, dataType: FIELD_TYPE_FLOAT}}
 }
 
 func (f FieldFloatMetadata) MaxValue() *float64 {
@@ -35,7 +35,7 @@ type ModelFieldFloat interface {
 	IsNull() bool
 }
 
-func castFloat(fieldId string, field reflect.Value) (float64, error) {
+func castFloat(fieldID string, field reflect.Value) (float64, error) {
 	var val float64
 	var ok bool
 
@@ -43,16 +43,16 @@ func castFloat(fieldId string, field reflect.Value) (float64, error) {
 	case reflect.Float64:
 		val, ok = field.Interface().(float64)
 		if !ok {
-			return 0, fmt.Errorf(ER_VAL_CAST, fieldId, "float64")
+			return 0, fmt.Errorf(ER_VAL_CAST, fieldID, "float64")
 		}
 	case reflect.Float32:
 		val32, ok := field.Interface().(float32)
 		if !ok {
-			return 0, fmt.Errorf(ER_VAL_CAST, fieldId, "float32")
+			return 0, fmt.Errorf(ER_VAL_CAST, fieldID, "float32")
 		}
 		val = float64(val32)
 	default:
-		return 0, fmt.Errorf(ER_VAL_CAST, fieldId, "float64")
+		return 0, fmt.Errorf(ER_VAL_CAST, fieldID, "float64")
 	}
 
 	return val, nil

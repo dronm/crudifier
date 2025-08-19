@@ -143,7 +143,7 @@ func PrepareUpdateModel(keyModel any, dbUpdate types.DbUpdater) error {
 // Aggregation functions.
 func PrepareFetchModelCollection(dbSelect types.DbSelecter, params CollectionParams) error {
 	if err := ParseFilterParams(dbSelect.Model(), dbSelect.Filter(), params); err != nil {
-		return err
+		return fmt.Errorf("ParseFilterParams(): %v", err)
 	}
 
 	//Aggregation functions
@@ -158,13 +158,13 @@ func PrepareFetchModelCollection(dbSelect types.DbSelecter, params CollectionPar
 		aggModelVal = aggModelVal.Elem()
 		for i := 0; i < aggModelVal.NumField(); i++ {
 			aggFieldType := aggModelType.Field(i)
-			fieldId := aggFieldType.Tag.Get(metadata.FieldAnnotationName)
-			if fieldId == "-" || fieldId == "" {
+			fieldID := aggFieldType.Tag.Get(metadata.FieldAnnotationName)
+			if fieldID == "-" || fieldID == "" {
 				return fmt.Errorf(ER_AGG_FIELD_NOT_DEFINED, i)
 			}
 			aggFunc := aggFieldType.Tag.Get(metadata.ANNOT_TAG_AGG)
 			if aggFunc == "" {
-				return fmt.Errorf(ER_AGG_FIELD_NO_FUNC, fieldId)
+				return fmt.Errorf(ER_AGG_FIELD_NO_FUNC, fieldID)
 			}
 			field := aggModelVal.Field(i)
 

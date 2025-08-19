@@ -1,3 +1,4 @@
+// Package metadata
 package metadata
 
 import (
@@ -6,11 +7,15 @@ import (
 	"sync"
 )
 
-// Metadata holds the mapping of json tags to field types.
+var ControledTags []string //defined at startup, tags to cache
+
+// ModelMetadata holds the mapping of json tags to field types.
 type ModelMetadata struct {
-	ID        string
-	Fields    map[string]FieldValidator //FieldMetadata
-	FieldList []string                  //fields in original order
+	ID           string
+	Fields       map[string]FieldValidator    // FieldMetadata, key is an sql field
+	FieldList    []string                     // structure field Names in original order, 
+	FieldTagList []string                     // sql fields in original order for retrieving metadata from Firlds
+	Tags         map[string]map[string]string // controled tag values. List of controled tags is defined in ControledTags
 }
 
 // cache to store metadata for different types.
@@ -43,59 +48,76 @@ func NewModelMetadata(model any) (*ModelMetadata, error) {
 	meta := ModelMetadata{ID: modelType.String(), Fields: make(map[string]FieldValidator)}
 	for i := 0; i < modelType.NumField(); i++ {
 		field := modelType.Field(i)
-		fieldId := field.Name
+		fieldID := field.Name
 		fieldTagVal := field.Tag.Get(FieldAnnotationName)
 
-		// Skip fields without a json tag or explicitly ignored
+		// Skip fields without a FieldFilterAnnotationName tag
 		if fieldTagVal == "-" || fieldTagVal == "" {
-			continue
+			// check filter tag
+			fieldTagVal = field.Tag.Get(FieldFilterAnnotationName)
+			if fieldTagVal == "-" || fieldTagVal == "" {
+				continue
+			}
 		}
 
-		meta.FieldList = append(meta.FieldList, fieldId)
+		for _, tag := range ControledTags {
+			tagVal := field.Tag.Get(tag)
+			if tagVal != "" {
+				if meta.Tags == nil {
+					meta.Tags = make(map[string]map[string]string)
+				}
+				if meta.Tags[fieldID] == nil {
+					meta.Tags[fieldID] = make(map[string]string)
+				}
+				meta.Tags[fieldID][tag] = tagVal
+			}
+		}
+
+		meta.FieldList = append(meta.FieldList, fieldID)
+		meta.FieldTagList = append(meta.FieldTagList, fieldTagVal)
 
 		fieldType := ""
 		if field.Type.Kind() == reflect.Ptr {
 			fieldType = field.Type.Elem().Name()
-
 		} else {
 			fieldType = field.Type.Name()
 		}
 		switch ParseFieldType(fieldType) {
 		case FIELD_TYPE_BOOL:
-			//no contraints
-			meta.Fields[fieldTagVal] = NewFieldBoolMedata(fieldId, fieldTagVal)
+			// no contraints
+			meta.Fields[fieldTagVal] = NewFieldBoolMedata(fieldID, fieldTagVal)
 
 		case FIELD_TYPE_TEXT:
-			validator := NewFieldTextMedata(fieldId, fieldTagVal)
+			validator := NewFieldTextMedata(fieldID, fieldTagVal)
 			setTextValidatorConstraints(field, validator)
 			meta.Fields[fieldTagVal] = validator
 
 		case FIELD_TYPE_INT:
-			validator := NewFieldIntMedata(fieldId, fieldTagVal)
+			validator := NewFieldIntMedata(fieldID, fieldTagVal)
 			setIntValidatorConstraints(field, validator)
 			meta.Fields[fieldTagVal] = validator
 
 		case FIELD_TYPE_FLOAT:
-			validator := NewFieldFloatMedata(fieldId, fieldTagVal)
+			validator := NewFieldFloatMedata(fieldID, fieldTagVal)
 			setFloatValidatorConstraints(field, validator)
 			meta.Fields[fieldTagVal] = validator
 
 		case FIELD_TYPE_DATE:
-			validator := NewFieldDateMedata(fieldId, fieldTagVal, FIELD_TYPE_DATE)
+			validator := NewFieldDateMedata(fieldID, fieldTagVal, FIELD_TYPE_DATE)
 			meta.Fields[fieldTagVal] = validator
 
 		case FIELD_TYPE_DATETIME:
-			validator := NewFieldDateMedata(fieldId, fieldTagVal, FIELD_TYPE_DATETIME)
+			validator := NewFieldDateMedata(fieldID, fieldTagVal, FIELD_TYPE_DATETIME)
 			meta.Fields[fieldTagVal] = validator
 
 		case FIELD_TYPE_DATETIMETZ:
-			validator := NewFieldDateMedata(fieldId, fieldTagVal, FIELD_TYPE_DATETIMETZ)
+			validator := NewFieldDateMedata(fieldID, fieldTagVal, FIELD_TYPE_DATETIMETZ)
 			meta.Fields[fieldTagVal] = validator
 		default:
-			meta.Fields[fieldTagVal] = &FieldMetadata{modelId: fieldId, id: fieldTagVal}
+			meta.Fields[fieldTagVal] = &FieldMetadata{modelId: fieldID, id: fieldTagVal}
 		}
 
-		//common tags
+		// common tags
 		meta.Fields[fieldTagVal].SetAlias(annotationTagStringVal(field, ANNOT_TAG_ALIAS))
 		meta.Fields[fieldTagVal].SetRequired(annotationTagBoolVal(field, ANNOT_TAG_REQUIRED))
 		meta.Fields[fieldTagVal].SetPrimaryKey(annotationTagBoolVal(field, ANNOT_TAG_PRIM_KEY))

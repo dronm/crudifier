@@ -25,6 +25,14 @@ func (f *PgFilters) AddFullTextSearch(fieldId string, value any, join types.Filt
 	})
 }
 
+func (f *PgFilters) AddArrayInclude(fieldId string, value any, join types.FilterJoin) {
+	*f = append(*f, PgFilter{
+		value: value,
+		join: join,
+		expression: fmt.Sprintf("%s = ANY({{PARAM}})", fieldId),
+	})
+}
+
 func (f PgFilters) Len() int {
 	return len(f)
 }

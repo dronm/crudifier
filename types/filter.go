@@ -29,7 +29,7 @@ const (
 
 type DbFilter interface {
 	FieldID() string
-	Value() interface{}
+	Value() any
 	Operator() SQLFilterOperator
 	Expression() string // validated,sanatized expression
 	Join() FilterJoin

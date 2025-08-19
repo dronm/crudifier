@@ -77,7 +77,7 @@ func (v FieldTime) String() string {
 	return v.value.Format(FORMAT_TIME)
 }
 
-// driver.Scanner, driver.Valuer interfaces
+// Scan implements driver.Scaner interface.
 func (v *FieldTime) Scan(value any) error {
 	v.isSet = true
 	v.notNull = true
@@ -103,6 +103,7 @@ func (v *FieldTime) Scan(value any) error {
 	return nil
 }
 
+// Value implements driver.Valuer interface
 func (v FieldTime) Value() (driver.Value, error) {
 	if !v.notNull {
 		return driver.Value(nil), nil

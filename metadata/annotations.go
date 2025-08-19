@@ -13,7 +13,14 @@ import (
 var Enums map[string][]string // Key is a enum ID, values is an array of possible values.
 
 // FieldAnnotationName  is a glabal variable that can be set at startup.
+// This annotation is used for select and filter. If not set or set to "-" the
+// field is not included in select statement but can be filtered if
+// FieldFilterAnnotationName is set.
 var FieldAnnotationName = "json"
+
+// FieldFilterAnnotationName is used for filtering. Columns marked with this
+// tag are not included in select, but can be filtered.
+var FieldFilterAnnotationName = "f"
 
 // ValListSeparator is used as a separator between list values.
 // This variable must be set at startup.
@@ -21,27 +28,27 @@ var ValListSeparator = "@@"
 
 // All possible annotations.
 const (
-	//common
+	// common
 	ANNOT_TAG_ALIAS       = "alias"
 	ANNOT_TAG_REQUIRED    = "required"
-	ANNOT_TAG_DB_REQUIRED = "dbRequired" //required for Database, can be set with trigger/autoinc
+	ANNOT_TAG_DB_REQUIRED = "dbRequired" // required for Database, can be set with trigger/autoinc
 	ANNOT_TAG_PRIM_KEY    = "primaryKey"
-	ANNOT_TAG_SRV_CALC    = "srvCalc" //server initialized field on insert
+	ANNOT_TAG_SRV_CALC    = "srvCalc" // server initialized field on insert
 
 	//
-	ANNOT_TAG_AGG = "agg" //aggregation function, like agg:"count(*)" for agg models
+	ANNOT_TAG_AGG = "agg" // aggregation function, like agg:"count(*)" for agg models
 
-	//text
+	// text
 	ANNOT_TAG_MAX_LEN  = "max"
 	ANNOT_TAG_MIN_LEN  = "min"
 	ANNOT_TAG_FIX_LEN  = "fix"
 	ANNOT_TAG_REG_EXP  = "regExp"
-	ANNOT_TAG_VAL_LIST = "valList" //separated list of values, separator is set at startup in ValListSeparator
+	ANNOT_TAG_VAL_LIST = "valList" // separated list of values, separator is set at startup in ValListSeparator
 
 	ANNOT_TAG_ENUM = "enum" // check against predefined list of value,
 	// list is set at startup and stored in global variable
 
-	//number
+	// number
 	ANNOT_TAG_MAX_VAL = "max"
 	ANNOT_TAG_MIN_VAL = "min"
 	ANNOT_TAG_FIX_VAL = "fix"
@@ -105,7 +112,7 @@ func setTextValidatorConstraints(field reflect.StructField, validator *FieldText
 
 	if tagVal := annotationTagStringVal(field, ANNOT_TAG_ENUM); tagVal != "" {
 		if vals, ok := Enums[tagVal]; ok {
-			//enum exists
+			// enum exists
 			validator.valList = vals
 		}
 	}

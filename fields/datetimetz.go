@@ -60,6 +60,7 @@ func (v *FieldDateTimeTZ) UnmarshalJSON(data []byte) error {
 
 	dataStr := RemoveQuotes(data)
 
+	// layout := time.RFC3339Nano
 	var layout string
 	if strings.Contains(dataStr, "+") {
 		layout = FORMAT_DATE_TIME_TZ2
@@ -73,7 +74,7 @@ func (v *FieldDateTimeTZ) UnmarshalJSON(data []byte) error {
 
 	tmp, err := time.Parse(layout, dataStr)
 	if err != nil {
-		return err
+		return fmt.Errorf("time.Parse(): %v, with layout: %v, dateStr: %s",err, layout, dataStr)
 	}
 	v.value = tmp
 

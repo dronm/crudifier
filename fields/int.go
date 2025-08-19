@@ -73,7 +73,7 @@ func (v *FieldInt) MarshalJSON() ([]byte, error) {
 }
 
 // driver.Scanner, driver.Valuer interfaces
-func (v *FieldInt) Scan(value interface{}) error {
+func (v *FieldInt) Scan(value any) error {
 	v.isSet = true
 	v.notNull = true
 

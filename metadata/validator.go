@@ -5,7 +5,7 @@ import (
 	"reflect"
 )
 
-// Base interface
+// FieldValidator is a base interface.
 type FieldValidator interface {
 	ModelID() string
 	ID() string
