@@ -29,9 +29,37 @@ func (f FieldDateMetadata) Validate(field reflect.Value) (bool, error) {
 		return true, nil
 	}
 
+	if field.Kind() == reflect.Ptr && field.IsNil() {
+		return true, nil
+
+	} else if field.Type().Kind() == reflect.Ptr {
+		field = field.Elem()
+		if !field.IsValid() {
+			return true, fmt.Errorf(ER_VAL_CAST, f.ModelID(), "date")
+		}
+	}
+
+	txtField, ok := field.Interface().(string)
+	if ok {
+		if f.DataType() == FIELD_TYPE_DATE && len(txtField) != 10 {
+			return true, fmt.Errorf(ER_VAL_CAST, f.ModelID(), "string")
+
+		}else if f.DataType() == FIELD_TYPE_TIME && len(txtField) != 5 {
+			return true, fmt.Errorf(ER_VAL_CAST, f.ModelID(), "string")
+
+		}else if f.DataType() == FIELD_TYPE_DATETIME && len(txtField) != 19 {
+			return true, fmt.Errorf(ER_VAL_CAST, f.ModelID(), "string")
+
+		}else if f.DataType() == FIELD_TYPE_DATETIMETZ && len(txtField) < 20 {
+			return true, fmt.Errorf(ER_VAL_CAST, f.ModelID(), "string")
+		}
+
+		return true, nil
+	}
+
 	timeField, ok := field.Interface().(time.Time)
 	if !ok {
 		return true, fmt.Errorf(ER_VAL_CAST, f.ModelID(), "time.Time")
 	}
-	return timeField == time.Time{}, nil
+	return timeField.Equal(time.Time{}), nil
 }
