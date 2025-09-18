@@ -15,6 +15,7 @@ const (
 	SQL_FILTER_OPERATOR_IN       SQLFilterOperator = "IS NOT"
 	SQL_FILTER_OPERATOR_INCL     SQLFilterOperator = "IN"
 	SQL_FILTER_OPERATOR_ANY      SQLFilterOperator = "ANY"
+	SQL_FILTER_OPERATOR_HAS      SQLFilterOperator = "ANY"
 	SQL_FILTER_OPERATOR_OVERLAP  SQLFilterOperator = "&&"
 	SQL_FILTER_OPERATOR_CONTAINS SQLFilterOperator = "@>"
 	SQL_FILTER_OPERATOR_TS       SQLFilterOperator = "@@"

@@ -19,11 +19,12 @@ const (
 	FILTER_OPER_PAR_ILK      FilterOperatorParam = "ilk"      // ilike
 	FILTER_OPER_PAR_NE       FilterOperatorParam = "ne"       // not equal
 	FILTER_OPER_PAR_I        FilterOperatorParam = "i"        // IS
-	FILTER_OPER_PAR_IN       FilterOperatorParam = "in"       // IS NOT 
-	FILTER_OPER_PAR_INCL     FilterOperatorParam = "incl"     // include IN ()
-	FILTER_OPER_PAR_ANY      FilterOperatorParam = "any"      // Any
-	FILTER_OPER_PAR_OVERLAP  FilterOperatorParam = "overlap"  // overlap &&
-	FILTER_OPER_PAR_CONTAINS FilterOperatorParam = "contains" // contains @>
+	FILTER_OPER_PAR_IN       FilterOperatorParam = "in"       // IS NOT
+	FILTER_OPER_PAR_INCL     FilterOperatorParam = "incl"     // include: column IN (param_array)
+	FILTER_OPER_PAR_ANY      FilterOperatorParam = "any"      // Any: column = ANY(param array)
+	FILTER_OPER_PAR_HAS      FilterOperatorParam = "has"      // Any: param = ANY(column_array)
+	FILTER_OPER_PAR_OVERLAP  FilterOperatorParam = "overlap"  // overlap && param_array
+	FILTER_OPER_PAR_CONTAINS FilterOperatorParam = "contains" // contains @> param_array
 	FILTER_OPER_PAR_TS       FilterOperatorParam = "fts"      // full text search
 )
 

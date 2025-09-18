@@ -9,27 +9,34 @@ import (
 
 type PgFilters []PgFilter
 
-// Add(fieldId string, value any, operation types.SQLFilterOperator, join types.FilterJoin)
-func (f *PgFilters) Add(fieldId string,
+func (f *PgFilters) Add(fieldID string,
 	value any, operator types.SQLFilterOperator,
 	join types.FilterJoin) {
 
-	*f = append(*f, PgFilter{fieldID: fieldId, value: value, join: join, operator: operator})
+	*f = append(*f, PgFilter{fieldID: fieldID, value: value, join: join, operator: operator})
 }
 
-func (f *PgFilters) AddFullTextSearch(fieldId string, value any, join types.FilterJoin) {
+func (f *PgFilters) AddFullTextSearch(fieldID string, value any, join types.FilterJoin) {
 	*f = append(*f, PgFilter{
 		value: value,
 		join: join,
-		expression: fmt.Sprintf("%s @@ to_tsquery('russian', {{PARAM}})", fieldId),
+		expression: fmt.Sprintf("%s @@ to_tsquery('russian', {{PARAM}})", fieldID),
 	})
 }
 
-func (f *PgFilters) AddArrayInclude(fieldId string, value any, join types.FilterJoin) {
+func (f *PgFilters) AddArrayInclude(fieldID string, value any, join types.FilterJoin) {
 	*f = append(*f, PgFilter{
 		value: value,
 		join: join,
-		expression: fmt.Sprintf("%s = ANY({{PARAM}})", fieldId),
+		expression: fmt.Sprintf("%s = ANY({{PARAM}})", fieldID),
+	})
+}
+
+func (f *PgFilters) AddColumnArrayInclude(fieldID string, value any, join types.FilterJoin) {
+	*f = append(*f, PgFilter{
+		value: value,
+		join: join,
+		expression: fmt.Sprintf("{{PARAM}} = ANY(%s)", fieldID),
 	})
 }
 

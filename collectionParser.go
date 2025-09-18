@@ -129,6 +129,8 @@ func ParseFilterParams(model types.DbModel, dbFilter types.DbFilters, params Col
 				operator = types.SQL_FILTER_OPERATOR_INCL
 			case FILTER_OPER_PAR_ANY:
 				operator = types.SQL_FILTER_OPERATOR_ANY
+			case FILTER_OPER_PAR_HAS:
+				operator = types.SQL_FILTER_OPERATOR_HAS
 			case FILTER_OPER_PAR_OVERLAP:
 				operator = types.SQL_FILTER_OPERATOR_OVERLAP
 			case FILTER_OPER_PAR_CONTAINS:
@@ -145,6 +147,8 @@ func ParseFilterParams(model types.DbModel, dbFilter types.DbFilters, params Col
 				dbFilter.AddFullTextSearch(filterFieldID, filterField.Value, join)
 			case types.SQL_FILTER_OPERATOR_INCL:
 				dbFilter.AddArrayInclude(filterFieldID, filterField.Value, join)
+			case types.SQL_FILTER_OPERATOR_HAS:
+				dbFilter.AddColumnArrayInclude(filterFieldID, filterField.Value, join)
 			default:
 				dbFilter.Add(filterFieldID, filterField.Value, operator, join)
 			}
