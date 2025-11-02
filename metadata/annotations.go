@@ -29,29 +29,29 @@ var ValListSeparator = "@@"
 // All possible annotations.
 const (
 	// common
-	ANNOT_TAG_ALIAS       = "alias"
-	ANNOT_TAG_REQUIRED    = "required"
-	ANNOT_TAG_DB_REQUIRED = "dbRequired" // required for Database, can be set with trigger/autoinc
-	ANNOT_TAG_PRIM_KEY    = "primaryKey"
-	ANNOT_TAG_SRV_CALC    = "srvCalc" // server initialized field on insert
+	AnnotTagAlias       = "alias"
+	AnnotTagRequired    = "required"
+	AnnotTagDBRequired = "dbRequired" // required for Database, can be set with trigger/autoinc
+	AnnotTagPrimKey    = "primaryKey"
+	AnnotTagSrvCalc    = "srvCalc" // server initialized field on insert
 
 	//
-	ANNOT_TAG_AGG = "agg" // aggregation function, like agg:"count(*)" for agg models
+	AnnotTagAgg = "agg" // aggregation function, like agg:"count(*)" for agg models
 
 	// text
-	ANNOT_TAG_MAX_LEN  = "max"
-	ANNOT_TAG_MIN_LEN  = "min"
-	ANNOT_TAG_FIX_LEN  = "fix"
-	ANNOT_TAG_REG_EXP  = "regExp"
-	ANNOT_TAG_VAL_LIST = "valList" // separated list of values, separator is set at startup in ValListSeparator
+	AnnotTagMaxLen  = "max"
+	AnnotTagMinLen  = "min"
+	AnnotTagFixLen  = "fix"
+	AnnotTagRegExp  = "regExp"
+	AnnotTagValList = "valList" // separated list of values, separator is set at startup in ValListSeparator
 
-	ANNOT_TAG_ENUM = "enum" // check against predefined list of value,
+	AnnotTagEnum = "enum" // check against predefined list of value,
 	// list is set at startup and stored in global variable
 
 	// number
-	ANNOT_TAG_MAX_VAL = "max"
-	ANNOT_TAG_MIN_VAL = "min"
-	ANNOT_TAG_FIX_VAL = "fix"
+	AnnotTagMaxVal = "max"
+	AnnotTagMinVal = "min"
+	AnnotTagFixVal = "fix"
 )
 
 func annotationTagBoolVal(fieldType reflect.StructField, tagName string) bool {
@@ -88,36 +88,36 @@ func annotationTagFloatVal(fieldType reflect.StructField, tagName string) (*floa
 }
 
 func setTextValidatorConstraints(field reflect.StructField, validator *FieldTextMetadata) error {
-	tagVal, err := annotationTagIntVal(field, ANNOT_TAG_MAX_LEN)
+	tagVal, err := annotationTagIntVal(field, AnnotTagMaxLen)
 	if err != nil {
 		return err
 	}
 	validator.maxLength = tagVal
 
-	tagVal, err = annotationTagIntVal(field, ANNOT_TAG_MIN_LEN)
+	tagVal, err = annotationTagIntVal(field, AnnotTagMinLen)
 	if err != nil {
 		return err
 	}
 	validator.minLength = tagVal
 
-	tagVal, err = annotationTagIntVal(field, ANNOT_TAG_FIX_LEN)
+	tagVal, err = annotationTagIntVal(field, AnnotTagFixLen)
 	if err != nil {
 		return err
 	}
 	validator.fixLength = tagVal
 
-	if tagVal := annotationTagStringVal(field, ANNOT_TAG_REG_EXP); tagVal != "" {
+	if tagVal := annotationTagStringVal(field, AnnotTagRegExp); tagVal != "" {
 		validator.regExp = tagVal
 	}
 
-	if tagVal := annotationTagStringVal(field, ANNOT_TAG_ENUM); tagVal != "" {
+	if tagVal := annotationTagStringVal(field, AnnotTagEnum); tagVal != "" {
 		if vals, ok := Enums[tagVal]; ok {
 			// enum exists
 			validator.valList = vals
 		}
 	}
 
-	if tagVal := annotationTagStringVal(field, ANNOT_TAG_VAL_LIST); tagVal != "" {
+	if tagVal := annotationTagStringVal(field, AnnotTagValList); tagVal != "" {
 		validator.valList = strings.Split(tagVal, ValListSeparator)
 	}
 
@@ -125,13 +125,13 @@ func setTextValidatorConstraints(field reflect.StructField, validator *FieldText
 }
 
 func setIntValidatorConstraints(field reflect.StructField, validator *FieldIntMetadata) error {
-	tagVal, err := annotationTagIntVal(field, ANNOT_TAG_MIN_VAL)
+	tagVal, err := annotationTagIntVal(field, AnnotTagMinVal)
 	if err != nil {
 		return err
 	}
 	validator.minValue = tagVal
 
-	tagVal, err = annotationTagIntVal(field, ANNOT_TAG_MAX_VAL)
+	tagVal, err = annotationTagIntVal(field, AnnotTagMaxVal)
 	if err != nil {
 		return err
 	}
@@ -141,13 +141,13 @@ func setIntValidatorConstraints(field reflect.StructField, validator *FieldIntMe
 }
 
 func setFloatValidatorConstraints(field reflect.StructField, validator *FieldFloatMetadata) error {
-	tagVal, err := annotationTagFloatVal(field, ANNOT_TAG_MIN_VAL)
+	tagVal, err := annotationTagFloatVal(field, AnnotTagMinVal)
 	if err != nil {
 		return err
 	}
 	validator.minValue = tagVal
 
-	tagVal, err = annotationTagFloatVal(field, ANNOT_TAG_MAX_VAL)
+	tagVal, err = annotationTagFloatVal(field, AnnotTagMaxVal)
 	if err != nil {
 		return err
 	}

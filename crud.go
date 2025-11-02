@@ -10,7 +10,7 @@ import (
 	"github.com/dronm/crudifier/types"
 )
 
-type DbField interface {
+type DBField interface {
 	IsSet() bool
 	IsNull() bool
 }
@@ -27,7 +27,7 @@ func NewValidationError(errText string) *ValidationError {
 	return &ValidationError{ErrText: errText}
 }
 
-func ModelToDbFilters(model any, filters types.DbFilters, operator types.SQLFilterOperator, join types.FilterJoin) error {
+func ModelToDBFilters(model any, filters types.DbFilters, operator types.SQLFilterOperator, join types.FilterJoin) error {
 	modelVal := reflect.ValueOf(model)
 	modelType := reflect.TypeOf(model)
 	if modelVal.Kind() == reflect.Ptr {
@@ -40,12 +40,12 @@ func ModelToDbFilters(model any, filters types.DbFilters, operator types.SQLFilt
 
 	for i := 0; i < modelVal.NumField(); i++ {
 		fieldType := modelType.Field(i)
-		fieldId := fieldType.Tag.Get(metadata.FieldAnnotationName)
-		if fieldId == "-" || fieldId == "" {
+		fieldID := fieldType.Tag.Get(metadata.FieldAnnotationName)
+		if fieldID == "-" || fieldID == "" {
 			continue
 		}
 		field := modelVal.Field(i)
-		filters.Add(fieldId, field.Interface(), operator, join)
+		filters.Add(fieldID, field.Interface(), operator, join)
 	}
 
 	return nil
@@ -53,7 +53,7 @@ func ModelToDbFilters(model any, filters types.DbFilters, operator types.SQLFilt
 
 // PrepareUpdateModel
 func PrepareUpdateModel(keyModel any, dbUpdate types.DbUpdater) error {
-	if err := ModelToDbFilters(keyModel, dbUpdate.Filter(), types.SQL_FILTER_OPERATOR_E, types.SQL_FILTER_JOIN_AND); err != nil {
+	if err := ModelToDBFilters(keyModel, dbUpdate.Filter(), types.SQL_FILTER_OPERATOR_E, types.SQL_FILTER_JOIN_AND); err != nil {
 		return err
 	}
 
@@ -162,7 +162,7 @@ func PrepareFetchModelCollection(dbSelect types.DbSelecter, params CollectionPar
 			if fieldID == "-" || fieldID == "" {
 				return fmt.Errorf(ER_AGG_FIELD_NOT_DEFINED, i)
 			}
-			aggFunc := aggFieldType.Tag.Get(metadata.ANNOT_TAG_AGG)
+			aggFunc := aggFieldType.Tag.Get(metadata.AnnotTagAgg)
 			if aggFunc == "" {
 				return fmt.Errorf(ER_AGG_FIELD_NO_FUNC, fieldID)
 			}
@@ -196,12 +196,12 @@ func prepareSelectModel(selectModel types.PrepareModel, model any) error {
 
 	for i := 0; i < modelVal.NumField(); i++ {
 		fieldType := modelType.Field(i)
-		fieldId := fieldType.Tag.Get(metadata.FieldAnnotationName)
-		if fieldId == "-" || fieldId == "" {
+		fieldID := fieldType.Tag.Get(metadata.FieldAnnotationName)
+		if fieldID == "-" || fieldID == "" {
 			continue
 		}
 		field := modelVal.Field(i)
-		selectModel.AddField(fieldId, field.Addr().Interface())
+		selectModel.AddField(fieldID, field.Addr().Interface())
 	}
 	return nil
 }
@@ -210,7 +210,7 @@ func prepareSelectModel(selectModel types.PrepareModel, model any) error {
 // to model.
 func PrepareFetchModel(keyModel any, dbSelect types.DbDetailSelecter) error {
 	filters := dbSelect.Filter()
-	if err := ModelToDbFilters(keyModel, filters, types.SQL_FILTER_OPERATOR_E, types.SQL_FILTER_JOIN_AND); err != nil {
+	if err := ModelToDBFilters(keyModel, filters, types.SQL_FILTER_OPERATOR_E, types.SQL_FILTER_JOIN_AND); err != nil {
 		return err
 	}
 	if filters.Len() == 0 {
@@ -243,23 +243,23 @@ func PrepareInsertModel(dbInsert types.DbInserter) error {
 	var errorList strings.Builder
 	for i := 0; i < modelVal.NumField(); i++ {
 		fieldType := modelType.Field(i)
-		fieldId := fieldType.Tag.Get(metadata.FieldAnnotationName)
-		if fieldId == "-" || fieldId == "" {
+		fieldID := fieldType.Tag.Get(metadata.FieldAnnotationName)
+		if fieldID == "-" || fieldID == "" {
 			continue
 		}
 		field := modelVal.Field(i)
 		if !field.CanInterface() {
-			return fmt.Errorf("reflect.CanInterface() failed for field %s", fieldId)
+			return fmt.Errorf("reflect.CanInterface() failed for field %s", fieldID)
 			// continue
 		}
 
 		if !field.IsValid() {
-			return fmt.Errorf("reflect.IsValid() failed for field %s", fieldId)
+			return fmt.Errorf("reflect.IsValid() failed for field %s", fieldID)
 		}
 
-		fieldMd, ok := modelMd.Fields[fieldId]
+		fieldMd, ok := modelMd.Fields[fieldID]
 		if !ok {
-			return fmt.Errorf(ER_NO_FIELD_IN_MD, "PrepareInsertModel", fieldId)
+			return fmt.Errorf(ER_NO_FIELD_IN_MD, "PrepareInsertModel", fieldID)
 		}
 
 		if err := fieldMd.ValidateRequired(field); err != nil {
@@ -272,7 +272,7 @@ func PrepareInsertModel(dbInsert types.DbInserter) error {
 
 		if fieldMd.SrvCalc() {
 			//should be returned
-			dbInsert.AddRetField(fieldId, field.Addr().Interface())
+			dbInsert.AddRetField(fieldID, field.Addr().Interface())
 			continue
 		}
 
@@ -294,9 +294,9 @@ func PrepareInsertModel(dbInsert types.DbInserter) error {
 				errorList.WriteString(err.Error())
 				continue
 			}
-			dbInsert.AddField(fieldId, b)
+			dbInsert.AddField(fieldID, b)
 		}else{
-			dbInsert.AddField(fieldId, field.Interface())
+			dbInsert.AddField(fieldID, field.Interface())
 		}
 
 	}

@@ -18,6 +18,10 @@ func NewFieldTime(value time.Time, isSet, isNull bool) FieldTime {
 	return FieldTime{value: value, isSet: isSet, notNull: !isNull}
 }
 
+func NewFieldTimeVal(value time.Time, isSet, isNull bool) FieldTime {
+	return FieldTime{value: value, isSet: true, notNull: true}
+}
+
 func (f *FieldTime) SetValue(v time.Time) {
 	f.value = v
 	f.isSet = true

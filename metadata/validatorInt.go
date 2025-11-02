@@ -33,6 +33,11 @@ func castInt(fieldID string, field reflect.Value) (int64, error) {
 	var val int64
 	var ok bool
 
+	// unwrap if it's interface{} holding a value
+	if field.Kind() == reflect.Interface {
+		field = field.Elem()
+	}
+
 	switch field.Type().Kind() {
 	case reflect.Int64:
 		val, ok = field.Interface().(int64)
@@ -107,9 +112,8 @@ func (f FieldIntMetadata) Validate(field reflect.Value) (bool, error) {
 		val = modelField.GetValue()
 
 	} else if field.Kind() == reflect.Ptr && field.IsNil() {
-		//standart type, nil pointer
+		// standart type, nil pointer
 		return true, nil
-
 	} else if field.Kind() == reflect.Ptr {
 		var err error
 
@@ -119,7 +123,7 @@ func (f FieldIntMetadata) Validate(field reflect.Value) (bool, error) {
 		}
 
 		if field.Type().Kind() == reflect.Slice {
-			//check every element
+			// check every element
 			if err := f.ValidateSlice(f.ModelID(), field); err != nil {
 				return true, err
 			}
@@ -132,9 +136,9 @@ func (f FieldIntMetadata) Validate(field reflect.Value) (bool, error) {
 		}
 
 	} else {
-		//standart type: int...
+		// standart type: int...
 		if field.Type().Kind() == reflect.Slice {
-			//check every element
+			// check every element
 			if err := f.ValidateSlice(f.ModelID(), field); err != nil {
 				return true, err
 			}
@@ -151,13 +155,13 @@ func (f FieldIntMetadata) Validate(field reflect.Value) (bool, error) {
 	return true, f.CheckValue(field, val)
 }
 
-//CheckValue does the actual validation of the given int64 value.
+// CheckValue does the actual validation of the given int64 value.
 func (f FieldIntMetadata) CheckValue(field reflect.Value, val int64) error {
 	if f.MinValue() != nil && val < *f.MinValue() {
 		return fmt.Errorf(ER_VAL_TOO_SMALL, f.Descr())
 	}
 	if f.MaxValue() != nil && val > *f.MaxValue() {
-		return  fmt.Errorf(ER_VAL_TOO_BIG, f.Descr())
+		return fmt.Errorf(ER_VAL_TOO_BIG, f.Descr())
 	}
 
 	return nil

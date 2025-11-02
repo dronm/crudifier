@@ -16,6 +16,10 @@ func NewFieldInt(value int64, isSet, isNull bool) FieldInt {
 	return FieldInt{value: value, isSet: isSet, notNull: !isNull}
 }
 
+func NewFieldIntVal(value int64) FieldInt {
+	return FieldInt{value: value, isSet: true, notNull: true}
+}
+
 func (f FieldInt) GetValue() int64 {
 	return f.value
 }

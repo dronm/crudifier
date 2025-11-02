@@ -18,6 +18,10 @@ func NewFieldFloat(value float64, isSet, isNull bool) FieldFloat {
 	return FieldFloat{value: value, isSet: isSet, notNull: !isNull}
 }
 
+func NewFieldFloatVal(value float64) FieldFloat {
+	return FieldFloat{value: value, isSet: true, notNull: true}
+}
+
 func (f FieldFloat) GetValue() float64 {
 	return f.value
 }

@@ -16,6 +16,10 @@ func NewFieldText(value string, isSet, isNull bool) FieldText {
 	return FieldText{value: value, isSet: isSet, notNull: !isNull}
 }
 
+func NewFieldTextVal(value string) FieldText {
+	return FieldText{value: value, isSet: true, notNull: true}
+}
+
 func (f FieldText) GetValue() string {
 	return f.value
 }

@@ -24,6 +24,10 @@ func NewFieldDateTimeTZ(value time.Time, isSet, isNull bool) FieldDateTimeTZ {
 	return FieldDateTimeTZ{value: value, isSet: isSet, notNull: !isNull}
 }
 
+func NewFieldDateTimeTZVal(value time.Time) FieldDateTimeTZ {
+	return FieldDateTimeTZ{value: value, isSet: true, notNull: true}
+}
+
 func (f FieldDateTimeTZ) GetValue() time.Time {
 	return f.value
 }

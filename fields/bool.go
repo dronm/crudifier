@@ -20,6 +20,10 @@ func NewFieldBool(value bool, isSet, isNull bool) FieldBool {
 	return FieldBool{value: value, isSet: isSet, notNull: !isNull}
 }
 
+func NewFieldBoolVal(value bool) FieldBool {
+	return FieldBool{value: value, isSet: true, notNull: true}
+}
+
 func (f FieldBool) GetValue() bool {
 	return f.value
 }

@@ -18,6 +18,10 @@ func NewFieldDate(value time.Time, isSet, isNull bool) FieldDate {
 	return FieldDate{value: value, isSet: isSet, notNull: !isNull}
 }
 
+func NewFieldDateVal(value time.Time) FieldDate {
+	return FieldDate{value: value, isSet: true, notNull: true}
+}
+
 func (f FieldDate) GetValue() time.Time {
 	return f.value
 }

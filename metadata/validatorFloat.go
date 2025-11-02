@@ -39,6 +39,11 @@ func castFloat(fieldID string, field reflect.Value) (float64, error) {
 	var val float64
 	var ok bool
 
+	// unwrap if it's interface{} holding a value
+	if field.Kind() == reflect.Interface {
+		field = field.Elem()
+	}
+
 	switch field.Type().Kind() {
 	case reflect.Float64:
 		val, ok = field.Interface().(float64)

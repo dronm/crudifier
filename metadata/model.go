@@ -118,10 +118,10 @@ func NewModelMetadata(model any) (*ModelMetadata, error) {
 		}
 
 		// common tags
-		meta.Fields[fieldTagVal].SetAlias(annotationTagStringVal(field, ANNOT_TAG_ALIAS))
-		meta.Fields[fieldTagVal].SetRequired(annotationTagBoolVal(field, ANNOT_TAG_REQUIRED))
-		meta.Fields[fieldTagVal].SetPrimaryKey(annotationTagBoolVal(field, ANNOT_TAG_PRIM_KEY))
-		meta.Fields[fieldTagVal].SetSrvCalc(annotationTagBoolVal(field, ANNOT_TAG_SRV_CALC))
+		meta.Fields[fieldTagVal].SetAlias(annotationTagStringVal(field, AnnotTagAlias))
+		meta.Fields[fieldTagVal].SetRequired(annotationTagBoolVal(field, AnnotTagRequired))
+		meta.Fields[fieldTagVal].SetPrimaryKey(annotationTagBoolVal(field, AnnotTagPrimKey))
+		meta.Fields[fieldTagVal].SetSrvCalc(annotationTagBoolVal(field, AnnotTagSrvCalc))
 	}
 
 	// Save to cache
