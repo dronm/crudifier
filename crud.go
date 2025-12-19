@@ -1,3 +1,5 @@
+// Package crudifier manages database operations, like
+// insert, update, delete.
 package crudifier
 
 import (
@@ -51,7 +53,6 @@ func ModelToDBFilters(model any, filters types.DbFilters, operator types.SQLFilt
 	return nil
 }
 
-// PrepareUpdateModel
 func PrepareUpdateModel(keyModel any, dbUpdate types.DbUpdater) error {
 	if err := ModelToDBFilters(keyModel, dbUpdate.Filter(), types.SQL_FILTER_OPERATOR_E, types.SQL_FILTER_JOIN_AND); err != nil {
 		return err
@@ -75,25 +76,25 @@ func PrepareUpdateModel(keyModel any, dbUpdate types.DbUpdater) error {
 	var errorList strings.Builder
 	for i := 0; i < modelVal.NumField(); i++ {
 		fieldType := modelType.Field(i)
-		fieldId := fieldType.Tag.Get(metadata.FieldAnnotationName)
-		if fieldId == "-" || fieldId == "" {
+		fieldID := fieldType.Tag.Get(metadata.FieldAnnotationName)
+		if fieldID == "-" || fieldID == "" {
 			continue
 		}
 
 		field := modelVal.Field(i)
 
 		if !field.CanInterface() {
-			return fmt.Errorf("reflect.CanInterface() failed for field %s", fieldId)
+			return fmt.Errorf("reflect.CanInterface() failed for field %s", fieldID)
 			// continue
 		}
 
 		if !field.IsValid() {
-			return fmt.Errorf("reflect.IsValid() failed for field %s", fieldId)
+			return fmt.Errorf("reflect.IsValid() failed for field %s", fieldID)
 		}
 
-		fieldMd, ok := modelMd.Fields[fieldId]
+		fieldMd, ok := modelMd.Fields[fieldID]
 		if !ok {
-			return fmt.Errorf(ER_NO_FIELD_IN_MD, "PrepareUpdateModel", fieldId)
+			return fmt.Errorf(ER_NO_FIELD_IN_MD, "PrepareUpdateModel", fieldID)
 		}
 
 		//if value is not present in model or it is not valid - skip field
@@ -123,11 +124,11 @@ func PrepareUpdateModel(keyModel any, dbUpdate types.DbUpdater) error {
 				errorList.WriteString(err.Error())
 				continue
 			}
-			dbUpdate.AddField(fieldId, b)
+			dbUpdate.AddField(fieldID, b)
 		}else{
-			dbUpdate.AddField(fieldId, field.Interface())
+			dbUpdate.AddField(fieldID, field.Interface())
 		}
-		// fmt.Println("PrepareUpdate fieldId:",fieldId,"value:",field, "fieldMD.DataType():", fieldMd.DataType())
+		// fmt.Println("PrepareUpdate fieldID:",fieldID,"value:",field, "fieldMD.DataType():", fieldMd.DataType())
 	}
 
 	if errorList.Len() > 0 {
@@ -138,7 +139,7 @@ func PrepareUpdateModel(keyModel any, dbUpdate types.DbUpdater) error {
 }
 
 // PrepareFetchModelCollection prepares for retrieving a collection of objects
-// from database and maps its fields to model.
+// from database and maps its fields to a model.
 // It first parses filters, sorters and limit from client qiery parameters.
 // Aggregation functions.
 func PrepareFetchModelCollection(dbSelect types.DbSelecter, params CollectionParams) error {
@@ -207,7 +208,7 @@ func prepareSelectModel(selectModel types.PrepareModel, model any) error {
 }
 
 // PrepareFetchModel prepares for retrieving one object from database and maps its fields
-// to model.
+// to a model.
 func PrepareFetchModel(keyModel any, dbSelect types.DbDetailSelecter) error {
 	filters := dbSelect.Filter()
 	if err := ModelToDBFilters(keyModel, filters, types.SQL_FILTER_OPERATOR_E, types.SQL_FILTER_JOIN_AND); err != nil {
@@ -330,23 +331,23 @@ func ValidateModel(model any, forInsert bool) error {
 	var errorList strings.Builder
 	for i := 0; i < modelVal.NumField(); i++ {
 		fieldType := modelType.Field(i)
-		fieldId := fieldType.Tag.Get(metadata.FieldAnnotationName)
-		if fieldId == "-" || fieldId == "" {
+		fieldID := fieldType.Tag.Get(metadata.FieldAnnotationName)
+		if fieldID == "-" || fieldID == "" {
 			continue
 		}
 		field := modelVal.Field(i)
 		if !field.CanInterface() {
-			return fmt.Errorf("reflect.CanInterface() failed for field %s", fieldId)
+			return fmt.Errorf("reflect.CanInterface() failed for field %s", fieldID)
 			// continue
 		}
 
 		if !field.IsValid() {
-			return fmt.Errorf("reflect.IsValid() failed for field %s", fieldId)
+			return fmt.Errorf("reflect.IsValid() failed for field %s", fieldID)
 		}
 
-		fieldMd, ok := modelMd.Fields[fieldId]
+		fieldMd, ok := modelMd.Fields[fieldID]
 		if !ok {
-			return fmt.Errorf(ER_NO_FIELD_IN_MD, "ValidateModel", fieldId)
+			return fmt.Errorf(ER_NO_FIELD_IN_MD, "ValidateModel", fieldID)
 		}
 
 		if fieldMd.SrvCalc() {
