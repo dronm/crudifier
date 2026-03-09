@@ -22,9 +22,15 @@ const (
 	FILTER_OPER_PAR_IN       FilterOperatorParam = "in"       // IS NOT
 	FILTER_OPER_PAR_INCL     FilterOperatorParam = "incl"     // include: column IN (param_array)
 	FILTER_OPER_PAR_ANY      FilterOperatorParam = "any"      // Any: column = ANY(param array)
-	FILTER_OPER_PAR_HAS      FilterOperatorParam = "has"      // Any: param = ANY(column_array)
-	FILTER_OPER_PAR_OVERLAP  FilterOperatorParam = "overlap"  // overlap && param_array
+
+	FILTER_OPER_PAR_HAS      FilterOperatorParam = "has"      // Any: param = ANY(array_column)
+
+	// overlap: any element in the column matches any element in the parameter
+	FILTER_OPER_PAR_OVERLAP  FilterOperatorParam = "overlap" // array_column && param_array
+
+	// Find rows where the parameter array is a subset of the column array
 	FILTER_OPER_PAR_CONTAINS FilterOperatorParam = "contains" // contains @> param_array
+
 	FILTER_OPER_PAR_TS       FilterOperatorParam = "fts"      // full text search
 )
 
