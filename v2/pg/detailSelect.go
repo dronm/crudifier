@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/dronm/crudifier/types"
+	"github.com/dronm/crudifier/v2/types"
 )
 
 type PgDetailSelect struct {

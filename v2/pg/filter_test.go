@@ -3,7 +3,7 @@ package pg
 import (
 	"testing"
 
-	"github.com/dronm/crudifier/types"
+	"github.com/dronm/crudifier/v2/types"
 )
 
 func TestFiltersSQL(t *testing.T) {

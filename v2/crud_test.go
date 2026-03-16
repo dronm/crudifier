@@ -4,8 +4,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/dronm/crudifier/fields"
-	"github.com/dronm/crudifier/pg"
+	"github.com/dronm/crudifier/v2/fields"
+	"github.com/dronm/crudifier/v2/pg"
 )
 
 type TableA struct {

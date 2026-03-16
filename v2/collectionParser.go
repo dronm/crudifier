@@ -6,9 +6,9 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/dronm/crudifier/metadata"
-	"github.com/dronm/crudifier/pg"
-	"github.com/dronm/crudifier/types"
+	"github.com/dronm/crudifier/v2/metadata"
+	"github.com/dronm/crudifier/v2/pg"
+	"github.com/dronm/crudifier/v2/types"
 )
 
 func ParseLimitParams(dbLimit types.DBLimit, params CollectionParams) error {
