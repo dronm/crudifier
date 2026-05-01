@@ -7,7 +7,7 @@ import (
 	"github.com/dronm/crudifier/v2/types"
 )
 
-const EXPR_PARAM = "{{PARAM}}"
+const exprParam = "{{PARAM}}"
 
 type PgFilter struct {
 	fieldID    string
@@ -15,12 +15,12 @@ type PgFilter struct {
 	operator   types.SQLFilterOperator
 	expression string
 	join       types.FilterJoin
-	fieldPref  string
+	fieldPref  string //table, table alias TABLE.fieldID
 }
 
-func NewPgFilter(fieldId string, value any) *PgFilter {
+func NewPgFilter(fieldID string, value any) *PgFilter {
 	return &PgFilter{
-		fieldID: fieldId, value: value,
+		fieldID: fieldID, value: value,
 		operator: types.SQLFilterOperatorEq,
 		join:     types.SQLFilterJoinAnd,
 	}
@@ -67,34 +67,34 @@ func (f PgFilter) FieldPref() string {
 }
 
 func (f PgFilter) SQL(queryParams *[]any) string {
-	fieldId := f.fieldID
+	fieldID := f.fieldID
 	if f.fieldPref != "" {
-		fieldId = f.fieldPref + "." + fieldId
+		fieldID = f.fieldPref + "." + fieldID
 	}
-	if fieldId != "" {
-		safeFieldID, err := sanitizeSQLFieldRef(fieldId)
+	if fieldID != "" {
+		safeFieldID, err := sanitizeSQLFieldRef(fieldID)
 		if err != nil {
 			panic(err)
 		}
-		fieldId = safeFieldID
+		fieldID = safeFieldID
 	}
 
 	if f.expression != "" {
-		if strings.Contains(f.expression, EXPR_PARAM) {
+		if strings.Contains(f.expression, exprParam) {
 			parInd := 0
 			if queryParams != nil {
 				parInd = len(*queryParams)
 			}
 			parInd++
 			*queryParams = append(*queryParams, f.value)
-			return strings.Replace(f.expression, EXPR_PARAM, fmt.Sprintf("$%d", parInd), 1)
+			return strings.Replace(f.expression, exprParam, fmt.Sprintf("$%d", parInd), 1)
 		}
 
 		return f.expression
 	}
 
 	if f.value == nil && (f.operator == types.SQLFilterOperatorIs || f.operator == types.SQLFilterOperatorIn) {
-		return fmt.Sprintf("%s %s NULL", fieldId, f.operator)
+		return fmt.Sprintf("%s %s NULL", fieldID, f.operator)
 	}
 
 	if f.operator == types.SQLFilterOperatorAny {
@@ -104,7 +104,7 @@ func (f PgFilter) SQL(queryParams *[]any) string {
 		}
 		parInd++
 		*queryParams = append(*queryParams, f.value)
-		return fmt.Sprintf("%s = ANY($%d)", fieldId, parInd)
+		return fmt.Sprintf("%s = ANY($%d)", fieldID, parInd)
 	}
 
 	if f.operator == "" {
@@ -118,5 +118,5 @@ func (f PgFilter) SQL(queryParams *[]any) string {
 	parInd++
 	*queryParams = append(*queryParams, f.value)
 
-	return fmt.Sprintf("%s %s $%d", fieldId, f.operator, parInd)
+	return fmt.Sprintf("%s %s $%d", fieldID, f.operator, parInd)
 }

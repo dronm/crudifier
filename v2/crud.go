@@ -29,7 +29,7 @@ func NewValidationError(errText string) *ValidationError {
 	return &ValidationError{ErrText: errText}
 }
 
-func ModelToDBFilters(model any, filters types.DBFilters, operator types.SQLFilterOperator, join types.FilterJoin) error {
+func ModelToDBFilters(model any, filters types.DBFilters, operator types.SQLFilterOperator, join types.FilterJoin, table string) error {
 	modelVal := reflect.ValueOf(model)
 	modelType := reflect.TypeOf(model)
 	if modelVal.Kind() == reflect.Ptr {
@@ -47,14 +47,14 @@ func ModelToDBFilters(model any, filters types.DBFilters, operator types.SQLFilt
 			continue
 		}
 		field := modelVal.Field(i)
-		filters.Add(fieldID, field.Interface(), operator, join)
+		filters.Add(table, fieldID, field.Interface(), operator, join)
 	}
 
 	return nil
 }
 
 func PrepareUpdateModel(keyModel any, dbUpdate types.DBUpdater) error {
-	if err := ModelToDBFilters(keyModel, dbUpdate.Filter(), types.SQLFilterOperatorEq, types.SQLFilterJoinAnd); err != nil {
+	if err := ModelToDBFilters(keyModel, dbUpdate.Filter(), types.SQLFilterOperatorEq, types.SQLFilterJoinAnd, ""); err != nil {
 		return err
 	}
 
@@ -147,7 +147,7 @@ func PrepareUpdateModel(keyModel any, dbUpdate types.DBUpdater) error {
 // It first parses filters, sorters and limit from client qiery parameters.
 // Aggregation functions.
 func PrepareFetchModelCollection(dbSelect types.DBSelecter, params CollectionParams) error {
-	if err := ParseFilterParams(dbSelect.Model(), dbSelect.Filter(), params); err != nil {
+	if err := ParseFilterParams(dbSelect.Model(), dbSelect.Filter(), params, ""); err != nil {
 		return fmt.Errorf("ParseFilterParams(): %v", err)
 	}
 
@@ -215,7 +215,7 @@ func prepareSelectModel(selectModel types.PrepareModel, model any) error {
 // to a model.
 func PrepareFetchModel(keyModel any, dbSelect types.DBDetailSelecter) error {
 	filters := dbSelect.Filter()
-	if err := ModelToDBFilters(keyModel, filters, types.SQLFilterOperatorEq, types.SQLFilterJoinAnd); err != nil {
+	if err := ModelToDBFilters(keyModel, filters, types.SQLFilterOperatorEq, types.SQLFilterJoinAnd, ""); err != nil {
 		return err
 	}
 	if filters.Len() == 0 {

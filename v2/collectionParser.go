@@ -56,7 +56,7 @@ func ParseSorterParams(model types.DBModel, dbSorter types.DBSorters, params Col
 	return nil
 }
 
-func ParseFilterParams(model types.DBModel, dbFilter types.DBFilters, params CollectionParams) error {
+func ParseFilterParams(model types.DBModel, dbFilter types.DBFilters, params CollectionParams, table string) error {
 	modelMd, err := metadata.NewModelMetadata(model)
 	if err != nil {
 		return err
@@ -141,13 +141,13 @@ func ParseFilterParams(model types.DBModel, dbFilter types.DBFilters, params Col
 			}
 			switch operator {
 			case types.SQLFilterOperatorTS:
-				dbFilter.AddFullTextSearch(filterFieldID, filterField.Value, join)
+				dbFilter.AddFullTextSearch(table, filterFieldID, filterField.Value, join)
 			case types.SQLFilterOperatorIncl:
-				dbFilter.AddArrayInclude(filterFieldID, filterField.Value, join)
+				dbFilter.AddArrayInclude(table, filterFieldID, filterField.Value, join)
 			case types.SQLFilterOperatorHas:
-				dbFilter.AddColumnArrayInclude(filterFieldID, filterField.Value, join)
+				dbFilter.AddColumnArrayInclude(table, filterFieldID, filterField.Value, join)
 			default:
-				dbFilter.Add(filterFieldID, filterField.Value, operator, join)
+				dbFilter.Add(table, filterFieldID, filterField.Value, operator, join)
 			}
 		}
 	}

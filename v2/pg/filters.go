@@ -9,14 +9,17 @@ import (
 
 type PgFilters []PgFilter
 
-func (f *PgFilters) Add(fieldID string, value any, operator types.SQLFilterOperator, join types.FilterJoin) {
-	*f = append(*f, PgFilter{fieldID: fieldID, value: value, join: join, operator: operator})
+func (f *PgFilters) Add(pref, fieldID string, value any, operator types.SQLFilterOperator, join types.FilterJoin) {
+	*f = append(*f, PgFilter{fieldID: fieldID, value: value, join: join, operator: operator, fieldPref: pref})
 }
 
-func (f *PgFilters) AddFullTextSearch(fieldID string, value any, join types.FilterJoin) {
+func (f *PgFilters) AddFullTextSearch(pref, fieldID string, value any, join types.FilterJoin) {
 	safeFieldID, err := sanitizeSQLFieldRef(fieldID)
 	if err != nil {
 		panic(err)
+	}
+	if pref != "" {
+		safeFieldID = pref + "." + safeFieldID
 	}
 	*f = append(*f, PgFilter{
 		value:      value,
@@ -25,10 +28,13 @@ func (f *PgFilters) AddFullTextSearch(fieldID string, value any, join types.Filt
 	})
 }
 
-func (f *PgFilters) AddArrayInclude(fieldID string, value any, join types.FilterJoin) {
+func (f *PgFilters) AddArrayInclude(pref, fieldID string, value any, join types.FilterJoin) {
 	safeFieldID, err := sanitizeSQLFieldRef(fieldID)
 	if err != nil {
 		panic(err)
+	}
+	if pref != "" {
+		safeFieldID = pref + "." + safeFieldID
 	}
 	*f = append(*f, PgFilter{
 		value:      value,
@@ -37,10 +43,13 @@ func (f *PgFilters) AddArrayInclude(fieldID string, value any, join types.Filter
 	})
 }
 
-func (f *PgFilters) AddColumnArrayInclude(fieldID string, value any, join types.FilterJoin) {
+func (f *PgFilters) AddColumnArrayInclude(pref, fieldID string, value any, join types.FilterJoin) {
 	safeFieldID, err := sanitizeSQLFieldRef(fieldID)
 	if err != nil {
 		panic(err)
+	}
+	if pref != "" {
+		safeFieldID = pref + "." + safeFieldID
 	}
 	*f = append(*f, PgFilter{
 		value:      value,
