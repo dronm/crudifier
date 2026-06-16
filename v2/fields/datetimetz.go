@@ -101,7 +101,6 @@ func (v FieldDateTimeTZ) String() string {
 	return v.value.Format(FormatDateTimeTZ1)
 }
 
-// driver.Scanner, driver.Valuer interfaces
 func (v *FieldDateTimeTZ) Scan(value any) error {
 	v.isSet = true
 	v.notNull = true

@@ -85,7 +85,6 @@ func (v FieldDate) String() string {
 	return v.value.Format(FORMAT_DATE)
 }
 
-// driver.Scanner, driver.Valuer interfaces
 func (v *FieldDate) Scan(value any) error {
 	v.isSet = true
 	v.notNull = true
